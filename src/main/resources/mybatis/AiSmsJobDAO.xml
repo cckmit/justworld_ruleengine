@@ -27,16 +27,6 @@
     delete from ai_sms_job
     where ID = #{id,jdbcType=VARCHAR}
   </delete>
-  <insert id="insert" keyColumn="ID" keyProperty="id" parameterType="com.justworld.custget.ruleengine.service.bo.AiSmsJob" useGeneratedKeys="true">
-    insert into ai_sms_job (PHONE, AI_USERNAME, TAG, 
-      `STATUS`, RULE_ID, CREATE_TIME, 
-      CLICK_COUNT, CLICK_TIME, SMS_TEMPLATE_ID
-      )
-    values (#{phone,jdbcType=VARCHAR}, #{aiUsername,jdbcType=VARCHAR}, #{tag,jdbcType=VARCHAR}, 
-      #{status,jdbcType=CHAR}, #{ruleId,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, 
-      #{clickCount,jdbcType=CHAR}, #{clickTime,jdbcType=TIMESTAMP}, #{smsTemplateId,jdbcType=VARCHAR}
-      )
-  </insert>
   <insert id="insertSelective" keyColumn="ID" keyProperty="id" parameterType="com.justworld.custget.ruleengine.service.bo.AiSmsJob" useGeneratedKeys="true">
     insert into ai_sms_job
     <trim prefix="(" suffix=")" suffixOverrides=",">

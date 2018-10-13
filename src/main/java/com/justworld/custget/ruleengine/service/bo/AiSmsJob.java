@@ -3,6 +3,7 @@ package com.justworld.custget.ruleengine.service.bo;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import java.io.Serializable;
+import java.sql.Timestamp;
 import java.util.Date;
 
 /**
@@ -40,6 +41,7 @@ public class AiSmsJob implements Serializable {
     /**
      * 创建时间
      */
+//    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;
 
     /**
@@ -50,7 +52,8 @@ public class AiSmsJob implements Serializable {
     /**
      * 短信链接最后点击时间
      */
-    private Date clickTime;
+//    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Timestamp clickTime;
 
     /**
      * 要发送的短信模板ID
@@ -123,11 +126,11 @@ public class AiSmsJob implements Serializable {
         this.clickCount = clickCount;
     }
 
-    public Date getClickTime() {
+    public Timestamp getClickTime() {
         return clickTime;
     }
 
-    public void setClickTime(Date clickTime) {
+    public void setClickTime(Timestamp clickTime) {
         this.clickTime = clickTime;
     }
 
