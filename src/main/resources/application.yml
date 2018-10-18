@@ -62,5 +62,11 @@ short-url-server:
     code_url: https://api.weibo.com/oauth2/authorize?client_id=3945911857&response_type=code&redirect_uri=http://115.28.235.146:6010/fantds/
     auth_token_url: https://api.weibo.com/oauth2/access_token?client_id=3945911857&client_secret=114dfb7de4175000b432ff0676222062&grant_type=authorization_code&redirect_uri=http://115.28.235.146:6010/fantds/&code=b3c95e9c776bcaa5b41790aeff295daf
 
+phone-identify-server:
+  baidu:
+    url: http://mobsec-dianhua.baidu.com/dianhua_api/open/location?tel=17001111234
+
+  juhe:
+    url: http://apis.juhe.cn/mobile/get?phone=13429667914&key=您申请的KEY
 
 
