@@ -1,4 +1,4 @@
-package com.justworld.custget.ruleengine.controller;
+package com.justworld.custget.intf.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.justworld.custget.ruleengine.service.bo.AiSmsJob;
@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.Map;
 
-import static com.justworld.custget.ruleengine.common.ResultBuilder.buildResult;
+import static com.justworld.custget.intf.common.ResultBuilder.buildResult;
 
 /**
  * AI短信控制器

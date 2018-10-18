@@ -1,18 +1,16 @@
 package com.justworld.custget.ruleengine.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.justworld.custget.ruleengine.dao.AiSmsJobDAO;
-import com.justworld.custget.ruleengine.service.AiSmsService;
 import com.justworld.custget.ruleengine.service.bo.AiSmsJob;
+import com.justworld.custget.ruleengine.service.shorturl.IShortUrlGenerator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Controller;
-import org.springframework.util.concurrent.ListenableFuture;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,10 +26,22 @@ public class AiSmsJobController {
     @Autowired
     private AiSmsJobDAO aiSmsJobDAO;
 
+
+    @Autowired
+    private IShortUrlGenerator sinaShortUrlGenerator;
+
     @ResponseBody
     @GetMapping(value = "queryList")
     public List<AiSmsJob> queryJobList(){
         log.debug("发送消息list");
         return aiSmsJobDAO.queryList();
+    }
+
+    @GetMapping(value = "test/{url}")
+    public String test(@PathVariable String url){
+        Map<String, String> urlMap = new HashMap<>();
+        urlMap.put(url, null);
+        sinaShortUrlGenerator.convertShortUrl(urlMap);
+        return urlMap.get(url);
     }
 }

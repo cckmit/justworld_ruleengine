@@ -1,4 +1,4 @@
-package com.justworld.custget.ruleengine.common;
+package com.justworld.custget.intf.common;
 
 import java.util.HashMap;
 import java.util.Map;
