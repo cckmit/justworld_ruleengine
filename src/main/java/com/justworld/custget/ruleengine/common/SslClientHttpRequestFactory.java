@@ -1,4 +1,4 @@
-package com.justworld.custget.ruleengine.service;
+package com.justworld.custget.ruleengine.common;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;

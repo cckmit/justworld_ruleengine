@@ -29,20 +29,18 @@ public class SinaShortUrlGenerator implements IShortUrlGenerator {
 
     @Override
     public void convertShortUrl(Map<String, String> urlMap) {
-        //发送请求
-        Map param = new HashMap();
-        param.put("access_token", "2.00z3GCYBdvdC_E514f2c1be10L8mHf");
-        param.put("url_long", "http://115.28.235.146:6010/fantds/");
-        try {
-            Map result = restTemplate.getForObject("https://api.weibo.com/2/short_url/shorten.json?access_token=2.00z3GCYBdvdC_E514f2c1be10L8mHf&url_long=http://115.28.235.146:6010/fantds/", Map.class);
 
-        for (Map urls : (List<Map>) result.get("urls")) {
-            urlMap.put(urls.get("url_long")+"", urls.get("url_short")+"");
+        //如果没有token，则发提醒短信(一天一次) TODO
+
+        String token = "2.00z3GCYBdvdC_E514f2c1be10L8mHf";
+
+        //发送请求
+        StringBuilder url = new StringBuilder(serverUrl + "?access_token={1}").append(urlMap.keySet().stream().reduce("",(k1, k2) -> k1.concat("&url_long=" + k2)));
+        Map result = restTemplate.getForObject(url.toString(), Map.class, token);
+        for (Map<String, ?> urls : (List<Map<String, ?>>) result.get("urls")) {
+            urlMap.put(urls.get("url_long") + "", urls.get("url_short") + "");
         }
         log.debug("short urls = {}", result.get("urls"));
-        } catch (Exception e){
-            log.debug("生成短链接出错", e);
-        }
 
     }
 }

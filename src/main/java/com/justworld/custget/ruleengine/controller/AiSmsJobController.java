@@ -40,7 +40,7 @@ public class AiSmsJobController {
     @GetMapping(value = "test/{url}")
     public String test(@PathVariable String url){
         Map<String, String> urlMap = new HashMap<>();
-        urlMap.put(url, null);
+        urlMap.put("http://115.28.235.146:6010/fantds/", null);
         sinaShortUrlGenerator.convertShortUrl(urlMap);
         return urlMap.get(url);
     }

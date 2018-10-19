@@ -1,4 +1,4 @@
-package com.justworld.custget.ruleengine.service;
+package com.justworld.custget.ruleengine.common;
 
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.TrustStrategy;

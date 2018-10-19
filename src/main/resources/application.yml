@@ -6,6 +6,8 @@ logging:
   level:
     com.justworld: trace
 spring:
+  profiles:
+    include: intf
   jackson:
     date-format: yyyy-MM-dd HH:mm:ss
     time-zone: GMT+8
@@ -51,22 +53,5 @@ mybatis:
   type-aliases-package: com.justworld.custget.ruleengine.service.bo  # 注意：对应实体类的路径
   configuration:
     map-underscore-to-camel-case: true
-
-short-url-server:
-  sina:
-    url: https://api.weibo.com/2/short_url/shorten.json
-    app_key: 3945911857
-    app_secret: 114dfb7de4175000b432ff0676222062
-    redirect_url: http://115.28.235.146:6010/fantds/
-    token: 2.00z3GCYBdvdC_E514f2c1be10L8mHf
-    code_url: https://api.weibo.com/oauth2/authorize?client_id=3945911857&response_type=code&redirect_uri=http://115.28.235.146:6010/fantds/
-    auth_token_url: https://api.weibo.com/oauth2/access_token?client_id=3945911857&client_secret=114dfb7de4175000b432ff0676222062&grant_type=authorization_code&redirect_uri=http://115.28.235.146:6010/fantds/&code=b3c95e9c776bcaa5b41790aeff295daf
-
-phone-identify-server:
-  baidu:
-    url: http://mobsec-dianhua.baidu.com/dianhua_api/open/location?tel=17001111234
-
-  juhe:
-    url: http://apis.juhe.cn/mobile/get?phone=13429667914&key=您申请的KEY
 
 
