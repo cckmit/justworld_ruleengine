@@ -1,10 +1,7 @@
 package com.justworld.custget.ruleengine.dao;
 
 import com.justworld.custget.ruleengine.service.bo.AiSmsJob;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.ResultMap;
-import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -12,26 +9,25 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-@Mapper
 @Repository
 public interface AiSmsJobDAO {
-    int deleteByPrimaryKey(String id);
 
     @Insert("INSERT INTO ai_sms_job (\n" +
-            "  ID, PHONE, AI_USERNAME, TAG, STATUS, RULE_ID, CREATE_TIME, CLICK_COUNT, CLICK_TIME, SMS_TEMPLATE_ID\n" +
+            "  ID, PHONE, AI_USERNAME, TAG, PHONE_STATUS, SHORT_URL_STATUS, STATUS, RULE_ID, CREATE_TIME, CLICK_COUNT, CLICK_TIME, SMS_TEMPLATE_ID, SMS_TEMPLATE_URL, SMS_SHORT_URL\n" +
             ") \n" +
             "VALUES\n" +
             "  (\n" +
-            "    #{id}, #{phone}, #{aiUsername}, #{tag},#{status}, #{ruleId}, #{createTime},#{clickCount}, #{clickTime}, #{smsTemplateId}" +
+            "    #{id}, #{phone}, #{aiUsername}, #{tag},#{phoneStatus},#{shortUrlStatus},#{status}, #{ruleId}, #{createTime},#{clickCount}, #{clickTime}, #{smsTemplateId}, #{smsTemplateUrl}, #{smsShortUrl}" +
             "  )")
     int insert(AiSmsJob aiSmsJob);
 
-    int insertSelective(AiSmsJob record);
+    @Select("SELECT * FROM AI_SMS_JOB WHERE ID=#{id}")
+    AiSmsJob selectByPrimaryKey(@Param("id") String id);
 
-    AiSmsJob selectByPrimaryKey(String id);
-
-    int updateByPrimaryKeySelective(AiSmsJob record);
-
+    @Update("UPDATE `ai_sms_job` \n" +
+            "SET\n" +
+            "  `TAG` = #{tag}, `PHONE_STATUS` = #{phoneStatus}, `SHORT_URL_STATUS` = #{shortUrlStatus}, `STATUS` = #{status}, `RULE_ID` = #{ruleId}, `CLICK_COUNT` = #{clickCount}, `CLICK_TIME` = #{clickTime}, `SMS_TEMPLATE_URL` = #{smsTemplateUrl}, `SMS_SHORT_URL` = #{smsShortUrl} \n" +
+            "WHERE `ID` = #{id}")
     int updateByPrimaryKey(AiSmsJob record);
 
     @Select("SELECT * FROM AI_SMS_JOB")

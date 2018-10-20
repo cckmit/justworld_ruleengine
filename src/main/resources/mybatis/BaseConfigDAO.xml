@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.justworld.custget.ruleengine.dao.BaseConfigDAO">
+  <resultMap id="BaseResultMap" type="com.justworld.custget.ruleengine.service.bo.BaseConfig">
+    <id column="CFG_GROUP" jdbcType="VARCHAR" property="cfgGroup" />
+    <id column="CFG_KEY" jdbcType="VARCHAR" property="cfgKey" />
+    <result column="NAME" jdbcType="VARCHAR" property="name" />
+    <result column="GROUP_NAME" jdbcType="VARCHAR" property="groupName" />
+    <result column="DESC" jdbcType="VARCHAR" property="desc" />
+  </resultMap>
+</mapper>

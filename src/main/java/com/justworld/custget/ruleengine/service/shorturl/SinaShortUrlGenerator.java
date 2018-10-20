@@ -1,5 +1,6 @@
 package com.justworld.custget.ruleengine.service.shorturl;
 
+import com.justworld.custget.ruleengine.dao.BaseConfigDAO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,21 +27,22 @@ public class SinaShortUrlGenerator implements IShortUrlGenerator {
 
     @Autowired
     private RestTemplate restTemplate;
+    @Autowired
+    private BaseConfigDAO baseConfigDAO;
 
     @Override
     public void convertShortUrl(Map<String, String> urlMap) {
 
+        String token = baseConfigDAO.selectByPrimaryKey("short-url-server.sina","token").getCfgValue();
         //如果没有token，则发提醒短信(一天一次) TODO
-
-        String token = "2.00z3GCYBdvdC_E514f2c1be10L8mHf";
-
+        log.trace("token={}",token);
         //发送请求
         StringBuilder url = new StringBuilder(serverUrl + "?access_token={1}").append(urlMap.keySet().stream().reduce("",(k1, k2) -> k1.concat("&url_long=" + k2)));
         Map result = restTemplate.getForObject(url.toString(), Map.class, token);
+
+        log.debug("short urls = {}", result);
         for (Map<String, ?> urls : (List<Map<String, ?>>) result.get("urls")) {
             urlMap.put(urls.get("url_long") + "", urls.get("url_short") + "");
         }
-        log.debug("short urls = {}", result.get("urls"));
-
     }
 }

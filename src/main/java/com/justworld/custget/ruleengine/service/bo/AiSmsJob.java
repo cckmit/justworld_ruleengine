@@ -28,6 +28,10 @@ public class AiSmsJob implements Serializable {
      */
     private String tag;
 
+    private String phoneStatus;
+
+    private String shortUrlStatus;
+
     /**
      * 状态：1=已接收，2=已识别号码，3=已匹配规则，4=已生成短信
      */
@@ -41,24 +45,26 @@ public class AiSmsJob implements Serializable {
     /**
      * 创建时间
      */
-//    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;
 
     /**
      * 短信链接点击次数
      */
-    private String clickCount;
+    private int clickCount;
 
     /**
      * 短信链接最后点击时间
      */
-//    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Timestamp clickTime;
 
     /**
      * 要发送的短信模板ID
      */
     private String smsTemplateId;
+
+    private String smsTemplateUrl;
+
+    private String smsShortUrl;
 
     private static final long serialVersionUID = 1L;
 
@@ -94,6 +100,22 @@ public class AiSmsJob implements Serializable {
         this.tag = tag;
     }
 
+    public String getPhoneStatus() {
+        return phoneStatus;
+    }
+
+    public void setPhoneStatus(String phoneStatus) {
+        this.phoneStatus = phoneStatus;
+    }
+
+    public String getShortUrlStatus() {
+        return shortUrlStatus;
+    }
+
+    public void setShortUrlStatus(String shortUrlStatus) {
+        this.shortUrlStatus = shortUrlStatus;
+    }
+
     public String getStatus() {
         return status;
     }
@@ -118,11 +140,11 @@ public class AiSmsJob implements Serializable {
         this.createTime = createTime;
     }
 
-    public String getClickCount() {
+    public int getClickCount() {
         return clickCount;
     }
 
-    public void setClickCount(String clickCount) {
+    public void setClickCount(int clickCount) {
         this.clickCount = clickCount;
     }
 
@@ -140,5 +162,21 @@ public class AiSmsJob implements Serializable {
 
     public void setSmsTemplateId(String smsTemplateId) {
         this.smsTemplateId = smsTemplateId;
+    }
+
+    public String getSmsTemplateUrl() {
+        return smsTemplateUrl;
+    }
+
+    public void setSmsTemplateUrl(String smsTemplateUrl) {
+        this.smsTemplateUrl = smsTemplateUrl;
+    }
+
+    public String getSmsShortUrl() {
+        return smsShortUrl;
+    }
+
+    public void setSmsShortUrl(String smsShortUrl) {
+        this.smsShortUrl = smsShortUrl;
     }
 }

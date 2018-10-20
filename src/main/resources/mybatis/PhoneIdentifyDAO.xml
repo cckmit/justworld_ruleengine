@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.justworld.custget.ruleengine.dao.PhoneIdentifyDAO">
+  <resultMap id="BaseResultMap" type="com.justworld.custget.ruleengine.service.bo.PhoneIdentify">
+    <id column="PHONE" jdbcType="VARCHAR" property="phone" />
+    <result column="PROVINCE" jdbcType="VARCHAR" property="province" />
+    <result column="CITY" jdbcType="VARCHAR" property="city" />
+    <result column="AREA" jdbcType="VARCHAR" property="area" />
+    <result column="TEL_OPERATOR" jdbcType="CHAR" property="telOperator" />
+    <result column="IDENTIFY_TYPE" jdbcType="VARCHAR" property="identifyType" />
+    <result column="IDENTIFY_TIME" jdbcType="TIMESTAMP" property="identifyTime" />
+    <result column="STATUS" jdbcType="CHAR" property="status" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    PHONE, PROVINCE, CITY, AREA, TEL_OPERATOR, IDENTIFY_TYPE, IDENTIFY_TIME, `STATUS`
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from phone_identify
+    where PHONE = #{phone,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from phone_identify
+    where PHONE = #{phone,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" keyColumn="PHONE" keyProperty="phone" parameterType="com.justworld.custget.ruleengine.service.bo.PhoneIdentify" useGeneratedKeys="true">
+    insert into phone_identify (PROVINCE, CITY, AREA, 
+      TEL_OPERATOR, IDENTIFY_TYPE, IDENTIFY_TIME, 
+      `STATUS`)
+    values (#{province,jdbcType=VARCHAR}, #{city,jdbcType=VARCHAR}, #{area,jdbcType=VARCHAR}, 
+      #{telOperator,jdbcType=CHAR}, #{identifyType,jdbcType=VARCHAR}, #{identifyTime,jdbcType=TIMESTAMP}, 
+      #{status,jdbcType=CHAR})
+  </insert>
+  <insert id="insertSelective" keyColumn="PHONE" keyProperty="phone" parameterType="com.justworld.custget.ruleengine.service.bo.PhoneIdentify" useGeneratedKeys="true">
+    insert into phone_identify
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="province != null">
+        PROVINCE,
+      </if>
+      <if test="city != null">
+        CITY,
+      </if>
+      <if test="area != null">
+        AREA,
+      </if>
+      <if test="telOperator != null">
+        TEL_OPERATOR,
+      </if>
+      <if test="identifyType != null">
+        IDENTIFY_TYPE,
+      </if>
+      <if test="identifyTime != null">
+        IDENTIFY_TIME,
+      </if>
+      <if test="status != null">
+        `STATUS`,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="province != null">
+        #{province,jdbcType=VARCHAR},
+      </if>
+      <if test="city != null">
+        #{city,jdbcType=VARCHAR},
+      </if>
+      <if test="area != null">
+        #{area,jdbcType=VARCHAR},
+      </if>
+      <if test="telOperator != null">
+        #{telOperator,jdbcType=CHAR},
+      </if>
+      <if test="identifyType != null">
+        #{identifyType,jdbcType=VARCHAR},
+      </if>
+      <if test="identifyTime != null">
+        #{identifyTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=CHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.justworld.custget.ruleengine.service.bo.PhoneIdentify">
+    update phone_identify
+    <set>
+      <if test="province != null">
+        PROVINCE = #{province,jdbcType=VARCHAR},
+      </if>
+      <if test="city != null">
+        CITY = #{city,jdbcType=VARCHAR},
+      </if>
+      <if test="area != null">
+        AREA = #{area,jdbcType=VARCHAR},
+      </if>
+      <if test="telOperator != null">
+        TEL_OPERATOR = #{telOperator,jdbcType=CHAR},
+      </if>
+      <if test="identifyType != null">
+        IDENTIFY_TYPE = #{identifyType,jdbcType=VARCHAR},
+      </if>
+      <if test="identifyTime != null">
+        IDENTIFY_TIME = #{identifyTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null">
+        `STATUS` = #{status,jdbcType=CHAR},
+      </if>
+    </set>
+    where PHONE = #{phone,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.justworld.custget.ruleengine.service.bo.PhoneIdentify">
+    update phone_identify
+    set PROVINCE = #{province,jdbcType=VARCHAR},
+      CITY = #{city,jdbcType=VARCHAR},
+      AREA = #{area,jdbcType=VARCHAR},
+      TEL_OPERATOR = #{telOperator,jdbcType=CHAR},
+      IDENTIFY_TYPE = #{identifyType,jdbcType=VARCHAR},
+      IDENTIFY_TIME = #{identifyTime,jdbcType=TIMESTAMP},
+      `STATUS` = #{status,jdbcType=CHAR}
+    where PHONE = #{phone,jdbcType=VARCHAR}
+  </update>
+</mapper>

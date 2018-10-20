@@ -31,7 +31,7 @@ public class MessageReceiverController {
 
     @ResponseBody
     @PostMapping(value = "addAiSms")
-    public Map<String,String> addAiSms(@RequestBody AiSmsJob aiSmsJob){
+    public Map<String,String> addAiSms(AiSmsJob aiSmsJob){
         try{
             String message = objectMapper.writeValueAsString(aiSmsJob);
             ListenableFuture future = kafkaTemplate.send("ai_message", message);
