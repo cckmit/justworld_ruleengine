@@ -9,13 +9,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
 @Service
 public class BaiduPhoneIdentifier implements IPhoneIdentifier {
 
-    @Value("phone-identify-server.baidu.url")
+    @Value("${phone-identify-server.baidu.url}")
     private String serviceUrl;
 
     @Autowired
@@ -28,10 +29,10 @@ public class BaiduPhoneIdentifier implements IPhoneIdentifier {
         log.trace("phone {} identify by baidu aip result=\n{}",phone,resultMap);
 
         //封装结果
-        Map<String,?> detailMap = (Map<String, ?>) ((Map)resultMap.get(phone)).get("detail");
+        Map<String,?> detailMap = (Map<String, ?>) ((Map)((Map)resultMap.get("response")).get(phone)).get("detail");
         PhoneIdentify result = new PhoneIdentify();
         result.setPhone(phone);
-        result.setCity(((Map)((Map)detailMap.get("area")).get("0")).get("city")+"");
+        result.setCity(((Map)((List)detailMap.get("area")).get(0)).get("city")+"");
         result.setProvince(String.valueOf(detailMap.get("province")));
         result.setTelOperator(PhoneOperatorIdentify.getPhoneOperator((String) detailMap.get("operator")));
         result.setIdentifyTime(new Date());

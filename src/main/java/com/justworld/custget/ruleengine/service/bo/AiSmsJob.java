@@ -11,7 +11,7 @@ import java.util.Date;
  * @author 
  */
 public class AiSmsJob implements Serializable {
-    private String id;
+    private Integer id;
 
     /**
      * 手机号
@@ -68,11 +68,11 @@ public class AiSmsJob implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    public String getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

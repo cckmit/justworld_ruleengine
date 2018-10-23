@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.justworld.custget.ruleengine.dao.SendSmsDAO">
-  <resultMap id="BaseResultMap" type="com.justworld.custget.ruleengine.service.bo.SendSms">
+  <resultMap id="SendSmsResultMap" type="com.justworld.custget.ruleengine.service.bo.SendSms">
     <id column="ID" jdbcType="INTEGER" property="id" />
-    <result column="BKNO" jdbcType="CHAR" property="bkno" />
     <result column="PHONE" jdbcType="VARCHAR" property="phone" />
     <result column="CONTENT" jdbcType="VARCHAR" property="content" />
     <result column="CREATE_TIME" jdbcType="TIMESTAMP" property="createTime" />
@@ -12,16 +11,16 @@
     <result column="DONE_TIME" jdbcType="TIMESTAMP" property="doneTime" />
     <result column="MSG_ID" jdbcType="VARCHAR" property="msgId" />
     <result column="SMS_TYPE" jdbcType="CHAR" property="smsType" />
-    <result column="SEND_TYPE" jdbcType="CHAR" property="sendType" />
+    <result column="DISPATCHER_ID" jdbcType="CHAR" property="dispatcherId" />
     <result column="RETRY_TIMES" jdbcType="INTEGER" property="retryTimes" />
     <result column="MAX_RETRY_TIMES" jdbcType="INTEGER" property="maxRetryTimes" />
     <result column="REMK" jdbcType="VARCHAR" property="remk" />
   </resultMap>
   <sql id="Base_Column_List">
-    ID, BKNO, PHONE, CONTENT, CREATE_TIME, SEND_TIME, `STATUS`, DONE_TIME, MSG_ID, SMS_TYPE, 
-    SEND_TYPE, RETRY_TIMES, MAX_RETRY_TIMES, REMK
+    ID, PHONE, CONTENT, CREATE_TIME, SEND_TIME, `STATUS`, DONE_TIME, MSG_ID, SMS_TYPE, 
+    DISPATCHER_ID, RETRY_TIMES, MAX_RETRY_TIMES, REMK
   </sql>
-  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="SendSmsResultMap">
     select 
     <include refid="Base_Column_List" />
     from send_sms
@@ -32,23 +31,20 @@
     where ID = #{id,jdbcType=INTEGER}
   </delete>
   <insert id="insert" keyColumn="ID" keyProperty="id" parameterType="com.justworld.custget.ruleengine.service.bo.SendSms" useGeneratedKeys="true">
-    insert into send_sms (BKNO, PHONE, CONTENT, 
-      CREATE_TIME, SEND_TIME, `STATUS`, 
-      DONE_TIME, MSG_ID, SMS_TYPE, 
-      SEND_TYPE, RETRY_TIMES, MAX_RETRY_TIMES, 
-      REMK)
-    values (#{bkno,jdbcType=CHAR}, #{phone,jdbcType=VARCHAR}, #{content,jdbcType=VARCHAR}, 
-      #{createTime,jdbcType=TIMESTAMP}, #{sendTime,jdbcType=TIMESTAMP}, #{status,jdbcType=TINYINT}, 
-      #{doneTime,jdbcType=TIMESTAMP}, #{msgId,jdbcType=VARCHAR}, #{smsType,jdbcType=CHAR}, 
-      #{sendType,jdbcType=CHAR}, #{retryTimes,jdbcType=INTEGER}, #{maxRetryTimes,jdbcType=INTEGER}, 
-      #{remk,jdbcType=VARCHAR})
+    insert into send_sms (PHONE, CONTENT, CREATE_TIME, 
+      SEND_TIME, `STATUS`, DONE_TIME, 
+      MSG_ID, SMS_TYPE, DISPATCHER_ID, 
+      RETRY_TIMES, MAX_RETRY_TIMES, REMK
+      )
+    values (#{phone,jdbcType=VARCHAR}, #{content,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, 
+      #{sendTime,jdbcType=TIMESTAMP}, #{status,jdbcType=TINYINT}, #{doneTime,jdbcType=TIMESTAMP}, 
+      #{msgId,jdbcType=VARCHAR}, #{smsType,jdbcType=CHAR}, #{dispatcherId,jdbcType=CHAR}, 
+      #{retryTimes,jdbcType=INTEGER}, #{maxRetryTimes,jdbcType=INTEGER}, #{remk,jdbcType=VARCHAR}
+      )
   </insert>
   <insert id="insertSelective" keyColumn="ID" keyProperty="id" parameterType="com.justworld.custget.ruleengine.service.bo.SendSms" useGeneratedKeys="true">
     insert into send_sms
     <trim prefix="(" suffix=")" suffixOverrides=",">
-      <if test="bkno != null">
-        BKNO,
-      </if>
       <if test="phone != null">
         PHONE,
       </if>
@@ -73,8 +69,8 @@
       <if test="smsType != null">
         SMS_TYPE,
       </if>
-      <if test="sendType != null">
-        SEND_TYPE,
+      <if test="dispatcherId != null">
+        DISPATCHER_ID,
       </if>
       <if test="retryTimes != null">
         RETRY_TIMES,
@@ -87,9 +83,6 @@
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
-      <if test="bkno != null">
-        #{bkno,jdbcType=CHAR},
-      </if>
       <if test="phone != null">
         #{phone,jdbcType=VARCHAR},
       </if>
@@ -114,8 +107,8 @@
       <if test="smsType != null">
         #{smsType,jdbcType=CHAR},
       </if>
-      <if test="sendType != null">
-        #{sendType,jdbcType=CHAR},
+      <if test="dispatcherId != null">
+        #{dispatcherId,jdbcType=CHAR},
       </if>
       <if test="retryTimes != null">
         #{retryTimes,jdbcType=INTEGER},
@@ -131,9 +124,6 @@
   <update id="updateByPrimaryKeySelective" parameterType="com.justworld.custget.ruleengine.service.bo.SendSms">
     update send_sms
     <set>
-      <if test="bkno != null">
-        BKNO = #{bkno,jdbcType=CHAR},
-      </if>
       <if test="phone != null">
         PHONE = #{phone,jdbcType=VARCHAR},
       </if>
@@ -158,8 +148,8 @@
       <if test="smsType != null">
         SMS_TYPE = #{smsType,jdbcType=CHAR},
       </if>
-      <if test="sendType != null">
-        SEND_TYPE = #{sendType,jdbcType=CHAR},
+      <if test="dispatcherId != null">
+        DISPATCHER_ID = #{dispatcherId,jdbcType=CHAR},
       </if>
       <if test="retryTimes != null">
         RETRY_TIMES = #{retryTimes,jdbcType=INTEGER},
@@ -175,8 +165,7 @@
   </update>
   <update id="updateByPrimaryKey" parameterType="com.justworld.custget.ruleengine.service.bo.SendSms">
     update send_sms
-    set BKNO = #{bkno,jdbcType=CHAR},
-      PHONE = #{phone,jdbcType=VARCHAR},
+    set PHONE = #{phone,jdbcType=VARCHAR},
       CONTENT = #{content,jdbcType=VARCHAR},
       CREATE_TIME = #{createTime,jdbcType=TIMESTAMP},
       SEND_TIME = #{sendTime,jdbcType=TIMESTAMP},
@@ -184,7 +173,7 @@
       DONE_TIME = #{doneTime,jdbcType=TIMESTAMP},
       MSG_ID = #{msgId,jdbcType=VARCHAR},
       SMS_TYPE = #{smsType,jdbcType=CHAR},
-      SEND_TYPE = #{sendType,jdbcType=CHAR},
+      DISPATCHER_ID = #{dispatcherId,jdbcType=CHAR},
       RETRY_TIMES = #{retryTimes,jdbcType=INTEGER},
       MAX_RETRY_TIMES = #{maxRetryTimes,jdbcType=INTEGER},
       REMK = #{remk,jdbcType=VARCHAR}

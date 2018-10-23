@@ -14,26 +14,33 @@ public class SendSms implements Serializable {
     private Integer id;
 
     /**
-     * 行号
-     */
-    private String bkno;
-
-    /**
      * 被叫号码
      */
     private String phone;
 
+    /**
+     * 短信内容
+     */
     private String content;
 
+    /**
+     * 短信创建时间
+     */
     private Date createTime;
 
+    /**
+     * 发送时间
+     */
     private Date sendTime;
 
     /**
      * 状态
      */
-    private Byte status;
+    private Integer status;
 
+    /**
+     * 客户收到时间
+     */
     private Date doneTime;
 
     /**
@@ -42,14 +49,14 @@ public class SendSms implements Serializable {
     private String msgId;
 
     /**
-     * 短信发送类型，用于定义该短信的发送时间
+     * 短信发送时间分类，用于定义该短信的发送时间
      */
     private String smsType;
 
     /**
-     * 短信发送类型，1-内网，移动短信，2-异网，电信联通
+     * 短信发送渠道ID
      */
-    private String sendType;
+    private String dispatcherId;
 
     /**
      * 重试次数
@@ -67,6 +74,22 @@ public class SendSms implements Serializable {
     private String remk;
 
     private static final long serialVersionUID = 1L;
+    public SendSms() {
+    }
+
+    public SendSms(String phone, String content, String dispatcherId) {
+        this.phone = phone;
+        this.content = content;
+        this.dispatcherId = dispatcherId;
+        this.status = 0;
+    }
+
+    public SendSms(String phone, String content, String dispatcherId, String smsType) {
+        this.phone = phone;
+        this.content = content;
+        this.smsType = smsType;
+        this.status = 0;
+    }
 
     public Integer getId() {
         return id;
@@ -74,14 +97,6 @@ public class SendSms implements Serializable {
 
     public void setId(Integer id) {
         this.id = id;
-    }
-
-    public String getBkno() {
-        return bkno;
-    }
-
-    public void setBkno(String bkno) {
-        this.bkno = bkno;
     }
 
     public String getPhone() {
@@ -116,11 +131,11 @@ public class SendSms implements Serializable {
         this.sendTime = sendTime;
     }
 
-    public Byte getStatus() {
+    public Integer getStatus() {
         return status;
     }
 
-    public void setStatus(Byte status) {
+    public void setStatus(Integer status) {
         this.status = status;
     }
 
@@ -148,12 +163,12 @@ public class SendSms implements Serializable {
         this.smsType = smsType;
     }
 
-    public String getSendType() {
-        return sendType;
+    public String getDispatcherId() {
+        return dispatcherId;
     }
 
-    public void setSendType(String sendType) {
-        this.sendType = sendType;
+    public void setDispatcherId(String dispatcherId) {
+        this.dispatcherId = dispatcherId;
     }
 
     public Integer getRetryTimes() {

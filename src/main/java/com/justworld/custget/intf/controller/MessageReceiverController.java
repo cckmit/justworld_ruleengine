@@ -30,7 +30,7 @@ public class MessageReceiverController {
     private ObjectMapper objectMapper;
 
     @ResponseBody
-    @PostMapping(value = "addAiSms")
+    @PostMapping(value = "/addAiSms")
     public Map<String,String> addAiSms(AiSmsJob aiSmsJob){
         try{
             String message = objectMapper.writeValueAsString(aiSmsJob);

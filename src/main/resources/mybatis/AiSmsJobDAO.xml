@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.justworld.custget.ruleengine.dao.AiSmsJobDAO">
   <resultMap id="BaseResultMap" type="com.justworld.custget.ruleengine.service.bo.AiSmsJob">
-    <id column="ID" jdbcType="VARCHAR" property="id" />
+    <id column="ID" jdbcType="INTEGER" property="id" />
     <result column="PHONE" jdbcType="VARCHAR" property="phone" />
     <result column="AI_USERNAME" jdbcType="VARCHAR" property="aiUsername" />
     <result column="TAG" jdbcType="VARCHAR" property="tag" />
@@ -17,121 +17,8 @@
     ID, PHONE, AI_USERNAME, TAG, `STATUS`, RULE_ID, CREATE_TIME, CLICK_COUNT, CLICK_TIME, 
     SMS_TEMPLATE_ID
   </sql>
-  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
-    select 
-    <include refid="Base_Column_List" />
-    from ai_sms_job
-    where ID = #{id,jdbcType=VARCHAR}
-  </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
     delete from ai_sms_job
     where ID = #{id,jdbcType=VARCHAR}
   </delete>
-  <insert id="insertSelective" keyColumn="ID" keyProperty="id" parameterType="com.justworld.custget.ruleengine.service.bo.AiSmsJob" useGeneratedKeys="true">
-    insert into ai_sms_job
-    <trim prefix="(" suffix=")" suffixOverrides=",">
-      <if test="phone != null">
-        PHONE,
-      </if>
-      <if test="aiUsername != null">
-        AI_USERNAME,
-      </if>
-      <if test="tag != null">
-        TAG,
-      </if>
-      <if test="status != null">
-        `STATUS`,
-      </if>
-      <if test="ruleId != null">
-        RULE_ID,
-      </if>
-      <if test="createTime != null">
-        CREATE_TIME,
-      </if>
-      <if test="clickCount != null">
-        CLICK_COUNT,
-      </if>
-      <if test="clickTime != null">
-        CLICK_TIME,
-      </if>
-      <if test="smsTemplateId != null">
-        SMS_TEMPLATE_ID,
-      </if>
-    </trim>
-    <trim prefix="values (" suffix=")" suffixOverrides=",">
-      <if test="phone != null">
-        #{phone,jdbcType=VARCHAR},
-      </if>
-      <if test="aiUsername != null">
-        #{aiUsername,jdbcType=VARCHAR},
-      </if>
-      <if test="tag != null">
-        #{tag,jdbcType=VARCHAR},
-      </if>
-      <if test="status != null">
-        #{status,jdbcType=CHAR},
-      </if>
-      <if test="ruleId != null">
-        #{ruleId,jdbcType=VARCHAR},
-      </if>
-      <if test="createTime != null">
-        #{createTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="clickCount != null">
-        #{clickCount,jdbcType=CHAR},
-      </if>
-      <if test="clickTime != null">
-        #{clickTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="smsTemplateId != null">
-        #{smsTemplateId,jdbcType=VARCHAR},
-      </if>
-    </trim>
-  </insert>
-  <update id="updateByPrimaryKeySelective" parameterType="com.justworld.custget.ruleengine.service.bo.AiSmsJob">
-    update ai_sms_job
-    <set>
-      <if test="phone != null">
-        PHONE = #{phone,jdbcType=VARCHAR},
-      </if>
-      <if test="aiUsername != null">
-        AI_USERNAME = #{aiUsername,jdbcType=VARCHAR},
-      </if>
-      <if test="tag != null">
-        TAG = #{tag,jdbcType=VARCHAR},
-      </if>
-      <if test="status != null">
-        `STATUS` = #{status,jdbcType=CHAR},
-      </if>
-      <if test="ruleId != null">
-        RULE_ID = #{ruleId,jdbcType=VARCHAR},
-      </if>
-      <if test="createTime != null">
-        CREATE_TIME = #{createTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="clickCount != null">
-        CLICK_COUNT = #{clickCount,jdbcType=CHAR},
-      </if>
-      <if test="clickTime != null">
-        CLICK_TIME = #{clickTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="smsTemplateId != null">
-        SMS_TEMPLATE_ID = #{smsTemplateId,jdbcType=VARCHAR},
-      </if>
-    </set>
-    where ID = #{id,jdbcType=VARCHAR}
-  </update>
-  <update id="updateByPrimaryKey" parameterType="com.justworld.custget.ruleengine.service.bo.AiSmsJob">
-    update ai_sms_job
-    set PHONE = #{phone,jdbcType=VARCHAR},
-      AI_USERNAME = #{aiUsername,jdbcType=VARCHAR},
-      TAG = #{tag,jdbcType=VARCHAR},
-      `STATUS` = #{status,jdbcType=CHAR},
-      RULE_ID = #{ruleId,jdbcType=VARCHAR},
-      CREATE_TIME = #{createTime,jdbcType=TIMESTAMP},
-      CLICK_COUNT = #{clickCount,jdbcType=CHAR},
-      CLICK_TIME = #{clickTime,jdbcType=TIMESTAMP},
-      SMS_TEMPLATE_ID = #{smsTemplateId,jdbcType=VARCHAR}
-    where ID = #{id,jdbcType=VARCHAR}
-  </update>
 </mapper>

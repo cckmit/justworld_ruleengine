@@ -25,10 +25,10 @@
     where PHONE = #{phone,jdbcType=VARCHAR}
   </delete>
   <insert id="insert" keyColumn="PHONE" keyProperty="phone" parameterType="com.justworld.custget.ruleengine.service.bo.PhoneIdentify" useGeneratedKeys="true">
-    insert into phone_identify (PROVINCE, CITY, AREA, 
+    insert into phone_identify (PHONE,PROVINCE, CITY, AREA,
       TEL_OPERATOR, IDENTIFY_TYPE, IDENTIFY_TIME, 
       `STATUS`)
-    values (#{province,jdbcType=VARCHAR}, #{city,jdbcType=VARCHAR}, #{area,jdbcType=VARCHAR}, 
+    values (#{phone},#{province,jdbcType=VARCHAR}, #{city,jdbcType=VARCHAR}, #{area,jdbcType=VARCHAR},
       #{telOperator,jdbcType=CHAR}, #{identifyType,jdbcType=VARCHAR}, #{identifyTime,jdbcType=TIMESTAMP}, 
       #{status,jdbcType=CHAR})
   </insert>

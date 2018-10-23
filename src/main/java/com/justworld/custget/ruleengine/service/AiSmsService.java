@@ -3,6 +3,7 @@ package com.justworld.custget.ruleengine.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.justworld.custget.ruleengine.dao.AiSmsJobDAO;
 import com.justworld.custget.ruleengine.dao.PhoneIdentifyDAO;
+import com.justworld.custget.ruleengine.dao.SendSmsDAO;
 import com.justworld.custget.ruleengine.dao.SmsTemplateDAO;
 import com.justworld.custget.ruleengine.service.bo.AiSmsJob;
 import com.justworld.custget.ruleengine.service.bo.PhoneIdentify;
@@ -43,6 +44,8 @@ public class AiSmsService {
     private ShortUrlGeneratorFactory shortUrlGeneratorFactory;
     @Autowired
     private SmsTemplateDAO smsTemplateDAO;
+    @Autowired
+    private SendSmsDAO sendSmsDAO;
 
     /**
      * 处理接收的AI挂机短信
@@ -73,12 +76,12 @@ public class AiSmsService {
 
             //发送识别消息
             if(aiSmsJob.getPhoneStatus().equals("1")){
-                ListenableFuture future = kafkaTemplate.send("phone_identify",aiSmsJob.getId());
+                ListenableFuture future = kafkaTemplate.send("phone_identify",aiSmsJob.getId()+"");
                 future.addCallback(o -> log.debug("挂机短信任务{}手机号识别消息发送成功：", o), throwable -> log.error("手机号识别消息发送失败",throwable));
             }
 
             //发送短链接处理消息
-            ListenableFuture future = kafkaTemplate.send("short_url_handle",aiSmsJob.getId());
+            ListenableFuture future = kafkaTemplate.send("short_url_handle",aiSmsJob.getId()+"");
             future.addCallback(o -> log.debug("短信任务{}短链接处理消息发送成功：", o), throwable -> log.error("短链接处理消息发送失败",throwable));
         } catch (IOException e) {
             log.error("错误：",e);
@@ -93,7 +96,7 @@ public class AiSmsService {
     @KafkaListener(topics = "phone_identify")
     public void handlePhoneIdentifyMessage(String message){
 
-        AiSmsJob aiSmsJob = aiSmsJobDAO.selectByPrimaryKey(message);
+        AiSmsJob aiSmsJob = aiSmsJobDAO.selectByPrimaryKey(Integer.valueOf(message));
 
         String phone = aiSmsJob.getPhone();
         PhoneIdentify identify = phoneIdentifyDAO.selectByPrimaryKey(phone);
@@ -108,10 +111,12 @@ public class AiSmsService {
                 phoneIdentifyDAO.updateByPrimaryKey(identify);
             }
             log.trace("手机号识别完成");
+            aiSmsJob = aiSmsJobDAO.lockByPrimaryKey(aiSmsJob.getId());
             aiSmsJob.setPhoneStatus("2");
             aiSmsJobDAO.updateByPrimaryKey(aiSmsJob);
         }
 
+        aiSmsJob = aiSmsJobDAO.lockByPrimaryKey(aiSmsJob.getId());
         if(aiSmsJob.getShortUrlStatus().equals("2")){   //短链接已生成
             log.trace("短链接已生成，直接插入短信");
             //生成短信
@@ -128,7 +133,7 @@ public class AiSmsService {
     @Transactional
     @KafkaListener(topics = "short_url_handle")
     public void handleShortUrlMessage(String message){
-        AiSmsJob aiSmsJob = aiSmsJobDAO.selectByPrimaryKey(message);
+        AiSmsJob aiSmsJob = aiSmsJobDAO.selectByPrimaryKey(Integer.valueOf(message));
 
         if(aiSmsJob.getShortUrlStatus().equals("1")) {
 
@@ -143,6 +148,7 @@ public class AiSmsService {
             Map<String, String> map = new HashMap<>();
             map.put(longUrl, null);
             generator.convertShortUrl(map);
+            aiSmsJob = aiSmsJobDAO.lockByPrimaryKey(aiSmsJob.getId());
             aiSmsJob.setSmsTemplateUrl(longUrl);
             aiSmsJob.setSmsShortUrl(map.get(longUrl));
             log.trace("生成的短链接为" + aiSmsJob.getSmsShortUrl());
@@ -152,6 +158,7 @@ public class AiSmsService {
         }
 
         //如果号码识别完成，则插入短信
+        aiSmsJob = aiSmsJobDAO.lockByPrimaryKey(aiSmsJob.getId());
         if(aiSmsJob.getPhoneStatus().equals("2")){   //号码已识别
             log.trace("短链接已生成，直接插入短信");
             //生成短信
@@ -171,7 +178,11 @@ public class AiSmsService {
         //组装短信内容
         String smsContent = StringUtils.replace(smsTemplate.getContent(),"<<"+aiSmsJob.getSmsTemplateUrl()+">>",aiSmsJob.getSmsShortUrl());
 
-        SendSms sms = new SendSms();
+        //TODO 决定使用的渠道
+        String dispatchId = "1";
+        SendSms sms = new SendSms(aiSmsJob.getPhone(),smsContent,dispatchId);
+        sendSmsDAO.insert(sms);
+
 
     }
 
