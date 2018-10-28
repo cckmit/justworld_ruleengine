@@ -2,11 +2,8 @@
 short-url-server:
   sina:
     url: https://api.weibo.com/2/short_url/shorten.json
-    app_key: 3945911857
-    app_secret: 114dfb7de4175000b432ff0676222062
-    redirect_url: http://115.28.235.146:6010/fantds/
     code_url: https://api.weibo.com/oauth2/authorize?client_id=${short-url-server.sina.app_key}&response_type=code&redirect_uri=${short-url-server.sina.redirect_url}
-    auth_token_url: https://api.weibo.com/oauth2/access_token?client_id=${short-url-server.sina.app_key}&client_secret=${short-url-server.sina.app_secret}}&grant_type=authorization_code&redirect_uri=${short-url-server.sina.redirect_url}&code=
+    auth_token_url: https://api.weibo.com/oauth2/access_token
 
 #手机号码识别接口
 phone-identify-server:

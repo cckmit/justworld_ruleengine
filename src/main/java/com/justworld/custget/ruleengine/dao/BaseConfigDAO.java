@@ -7,6 +7,8 @@ import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface BaseConfigDAO {
 
@@ -25,8 +27,11 @@ public interface BaseConfigDAO {
     @Update("UPDATE \n" +
             "  `base_config` \n" +
             "SET\n" +
-            "  `CFG_VALUE` = #{cfg_value}, `NAME` = #{name}, `GROUP_NAME` = #{group_name}, `DESC` = #{desc} \n" +
+            "  `CFG_VALUE` = #{cfgValue} \n" +
             "WHERE `CFG_GROUP` = #{cfgGroup} \n" +
-            "  AND `CFG_KEY` = #{cfg_key}")
+            "  AND `CFG_KEY` = #{cfgKey}")
     int updateByPrimaryKey(BaseConfig record);
+
+    @Select("SELECT * FROM `base_config` WHERE CFG_GROUP=#{cfgGroup}")
+    List<BaseConfig> queryGroup(@Param("cfgGroup") String cfgGroup);
 }

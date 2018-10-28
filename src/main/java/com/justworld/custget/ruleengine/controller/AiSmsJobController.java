@@ -2,18 +2,15 @@ package com.justworld.custget.ruleengine.controller;
 
 import com.justworld.custget.ruleengine.dao.AiSmsJobDAO;
 import com.justworld.custget.ruleengine.service.bo.AiSmsJob;
-import com.justworld.custget.ruleengine.service.shorturl.IShortUrlGenerator;
+import com.justworld.custget.ruleengine.service.shorturl.SinaShortUrlGenerator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * AI短信控制器
@@ -26,9 +23,8 @@ public class AiSmsJobController {
     @Autowired
     private AiSmsJobDAO aiSmsJobDAO;
 
-
     @Autowired
-    private IShortUrlGenerator sinaShortUrlGenerator;
+    private SinaShortUrlGenerator sinaShortUrlGenerator;
 
     @ResponseBody
     @GetMapping(value = "queryList")
@@ -37,11 +33,11 @@ public class AiSmsJobController {
         return aiSmsJobDAO.queryList();
     }
 
-    @GetMapping(value = "test/{url}")
-    public String test(@PathVariable String url){
-        Map<String, String> urlMap = new HashMap<>();
-        urlMap.put("http://115.28.235.146:6010/fantds/", null);
-        sinaShortUrlGenerator.convertShortUrl(urlMap);
-        return urlMap.get(url);
+    @GetMapping(value = "weibocode")
+    public String getSinaAuth(String code){
+        sinaShortUrlGenerator.getToken(code);
+        return "successs";
     }
+
+
 }

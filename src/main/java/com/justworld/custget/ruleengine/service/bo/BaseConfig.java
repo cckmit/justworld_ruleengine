@@ -39,6 +39,22 @@ public class BaseConfig implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
+    public String getCfgGroup() {
+        return cfgGroup;
+    }
+
+    public void setCfgGroup(String cfgGroup) {
+        this.cfgGroup = cfgGroup;
+    }
+
+    public String getCfgKey() {
+        return cfgKey;
+    }
+
+    public void setCfgKey(String cfgKey) {
+        this.cfgKey = cfgKey;
+    }
+
     public String getName() {
         return name;
     }

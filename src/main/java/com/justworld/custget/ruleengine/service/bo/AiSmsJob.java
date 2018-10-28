@@ -13,6 +13,7 @@ import java.util.Date;
 public class AiSmsJob implements Serializable {
     private Integer id;
 
+    private String aiSeq;
     /**
      * 手机号
      */
@@ -66,6 +67,8 @@ public class AiSmsJob implements Serializable {
 
     private String smsShortUrl;
 
+    private String sendSmsId;
+
     private static final long serialVersionUID = 1L;
 
     public Integer getId() {
@@ -74,6 +77,14 @@ public class AiSmsJob implements Serializable {
 
     public void setId(Integer id) {
         this.id = id;
+    }
+
+    public String getAiSeq() {
+        return aiSeq;
+    }
+
+    public void setAiSeq(String aiSeq) {
+        this.aiSeq = aiSeq;
     }
 
     public String getPhone() {
@@ -178,5 +189,13 @@ public class AiSmsJob implements Serializable {
 
     public void setSmsShortUrl(String smsShortUrl) {
         this.smsShortUrl = smsShortUrl;
+    }
+
+    public String getSendSmsId() {
+        return sendSmsId;
+    }
+
+    public void setSendSmsId(String sendSmsId) {
+        this.sendSmsId = sendSmsId;
     }
 }

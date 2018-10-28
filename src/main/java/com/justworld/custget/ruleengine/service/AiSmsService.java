@@ -1,18 +1,13 @@
 package com.justworld.custget.ruleengine.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.justworld.custget.ruleengine.dao.AiSmsJobDAO;
-import com.justworld.custget.ruleengine.dao.PhoneIdentifyDAO;
-import com.justworld.custget.ruleengine.dao.SendSmsDAO;
-import com.justworld.custget.ruleengine.dao.SmsTemplateDAO;
-import com.justworld.custget.ruleengine.service.bo.AiSmsJob;
-import com.justworld.custget.ruleengine.service.bo.PhoneIdentify;
-import com.justworld.custget.ruleengine.service.bo.SendSms;
-import com.justworld.custget.ruleengine.service.bo.SmsTemplate;
+import com.justworld.custget.ruleengine.dao.*;
+import com.justworld.custget.ruleengine.service.bo.*;
 import com.justworld.custget.ruleengine.service.phoneidentify.IPhoneIdentifier;
 import com.justworld.custget.ruleengine.service.phoneidentify.PhoneIdentifierFactory;
 import com.justworld.custget.ruleengine.service.shorturl.IShortUrlGenerator;
 import com.justworld.custget.ruleengine.service.shorturl.ShortUrlGeneratorFactory;
+import com.justworld.custget.ruleengine.service.smsdispatcher.AiSmsDispatcherSelector;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +41,10 @@ public class AiSmsService {
     private SmsTemplateDAO smsTemplateDAO;
     @Autowired
     private SendSmsDAO sendSmsDAO;
+    @Autowired
+    private BaseConfigDAO baseConfigDAO;
+    @Autowired
+    private AiSmsDispatcherSelector dispatcherSelector;
 
     /**
      * 处理接收的AI挂机短信
@@ -57,6 +56,12 @@ public class AiSmsService {
         try {
             log.trace("收到ai挂机消息{}",message);
             AiSmsJob aiSmsJob = objectMapper.readValue(message, AiSmsJob.class);
+
+            AiSmsJob oldAiSmsJob = aiSmsJobDAO.selectByAiSeq(aiSmsJob.getAiSeq());
+            if(oldAiSmsJob!=null){
+                log.info("消息重复:{}",oldAiSmsJob.getAiSeq());
+                return;
+            }
 
             //手机号识别
             PhoneIdentify identify = phoneIdentifyDAO.selectByPrimaryKey(aiSmsJob.getPhone());
@@ -143,14 +148,19 @@ public class AiSmsService {
             //分析链接
             String longUrl = StringUtils.substringsBetween(smsTemplate.getContent(), "<<", ">>")[0];
             log.trace("短信模板中的长链接为:" + longUrl);
+
+            //替换链接
+            BaseConfig clickStatCfg = baseConfigDAO.selectByPrimaryKey("aismsjob-config","click-url");
+            String replaceUrl = clickStatCfg.getCfgValue()+"/"+aiSmsJob.getId();
+
             //获取短链
             IShortUrlGenerator generator = shortUrlGeneratorFactory.getGenerator();
             Map<String, String> map = new HashMap<>();
-            map.put(longUrl, null);
+            map.put(replaceUrl, null);
             generator.convertShortUrl(map);
             aiSmsJob = aiSmsJobDAO.lockByPrimaryKey(aiSmsJob.getId());
             aiSmsJob.setSmsTemplateUrl(longUrl);
-            aiSmsJob.setSmsShortUrl(map.get(longUrl));
+            aiSmsJob.setSmsShortUrl(map.get(replaceUrl));
             log.trace("生成的短链接为" + aiSmsJob.getSmsShortUrl());
 
             aiSmsJob.setShortUrlStatus("2");
@@ -173,16 +183,23 @@ public class AiSmsService {
      * @param aiSmsJob
      */
     public void sendSms(AiSmsJob aiSmsJob){
+        aiSmsJob = aiSmsJobDAO.lockByPrimaryKey(aiSmsJob.getId());
+        if(aiSmsJob.getSendSmsId()!=null){
+            log.info("该任务已发送短信");
+            return;
+        }
         SmsTemplate smsTemplate = smsTemplateDAO.selectByPrimaryKey(aiSmsJob.getSmsTemplateId());
 
         //组装短信内容
         String smsContent = StringUtils.replace(smsTemplate.getContent(),"<<"+aiSmsJob.getSmsTemplateUrl()+">>",aiSmsJob.getSmsShortUrl());
 
-        //TODO 决定使用的渠道
-        String dispatchId = "1";
-        SendSms sms = new SendSms(aiSmsJob.getPhone(),smsContent,dispatchId);
+        //决定使用的渠道
+        SmsDispatcher dispatcher = dispatcherSelector.select(aiSmsJob);
+        SendSms sms = new SendSms(aiSmsJob.getPhone(),smsContent,dispatcher.getDispatcherKey());
         sendSmsDAO.insert(sms);
 
+        aiSmsJob.setSendSmsId(sms.getId()+"");
+        aiSmsJobDAO.updateByPrimaryKey(aiSmsJob);
 
     }
 
