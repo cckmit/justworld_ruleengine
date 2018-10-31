@@ -53,5 +53,10 @@ mybatis:
   type-aliases-package: com.justworld.custget.ruleengine.service.bo  # 注意：对应实体类的路径
   configuration:
     map-underscore-to-camel-case: true
-
+# 分页配置
+pagehelper:
+  helper-dialect: mysql
+  reasonable: true
+  support-methods-arguments: true
+  params: count=countSql
 

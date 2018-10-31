@@ -31,8 +31,8 @@ public class BaseResult<T> implements Serializable {
         return new BaseResult(rtcd,msg);
     }
 
-    public static BaseResult buildSuccess(Object data){
-        return new BaseResult("0",null,data);
+    public static <T> BaseResult<T> buildSuccess(T data){
+        return new BaseResult<>("0",null,data);
     }
 
     public String getRtcd() {

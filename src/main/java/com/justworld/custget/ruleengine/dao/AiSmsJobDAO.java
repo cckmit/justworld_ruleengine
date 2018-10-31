@@ -37,6 +37,15 @@ public interface AiSmsJobDAO {
             "WHERE `ID` = #{id}")
     int updateByPrimaryKey(AiSmsJob record);
 
-    @Select("SELECT * FROM AI_SMS_JOB")
-    List<AiSmsJob> queryList();
+    @Select("<script>" +
+            "SELECT * FROM AI_SMS_JOB " +
+            "<where>" +
+            "<if test='phone != null'> " +
+            "<bind name='phone' value=\"'%'+phone+'%'\"/>" +
+            "AND PHONE LIKE #{phone}" +
+            "</if>" +
+            "</where>" +
+            "ORDER BY ID DESC" +
+            "</script>")
+    List<AiSmsJob> queryList(AiSmsJob cond);
 }
