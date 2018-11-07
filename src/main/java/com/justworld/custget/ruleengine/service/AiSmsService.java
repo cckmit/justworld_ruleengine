@@ -182,25 +182,28 @@ public class AiSmsService {
      * 插入待发送短信
      * @param aiSmsJob
      */
-    public void sendSms(AiSmsJob aiSmsJob){
+    public void sendSms(AiSmsJob aiSmsJob) {
         aiSmsJob = aiSmsJobDAO.lockByPrimaryKey(aiSmsJob.getId());
-        if(aiSmsJob.getSendSmsId()!=null){
+        if (aiSmsJob.getSendSmsId() != null) {
             log.info("该任务已发送短信");
             return;
         }
         SmsTemplate smsTemplate = smsTemplateDAO.selectByPrimaryKey(aiSmsJob.getSmsTemplateId());
 
         //组装短信内容
-        String smsContent = StringUtils.replace(smsTemplate.getContent(),"<<"+aiSmsJob.getSmsTemplateUrl()+">>",aiSmsJob.getSmsShortUrl());
+        String smsContent = StringUtils.replace(smsTemplate.getContent(), "<<" + aiSmsJob.getSmsTemplateUrl() + ">>", aiSmsJob.getSmsShortUrl());
 
         //决定使用的渠道
         SmsDispatcher dispatcher = dispatcherSelector.select(aiSmsJob);
-        SendSms sms = new SendSms(aiSmsJob.getPhone(),smsContent,dispatcher.getDispatcherKey());
+        SendSms sms = new SendSms(aiSmsJob.getPhone(), smsContent, dispatcher.getDispatcherKey());
         sendSmsDAO.insert(sms);
 
-        aiSmsJob.setSendSmsId(sms.getId()+"");
+        aiSmsJob.setSendSmsId(sms.getId() + "");
         aiSmsJobDAO.updateByPrimaryKey(aiSmsJob);
 
+        //发送发短信通知
+        ListenableFuture future = kafkaTemplate.send("send_sms_notify", aiSmsJob.getId() + "");
+        future.addCallback(o -> log.debug("挂机短信任务{}短信发送通知消息发送成功：", o), throwable -> log.error("短信发送通知消息发送失败", throwable));
     }
 
 

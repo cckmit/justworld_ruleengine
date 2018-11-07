@@ -22,13 +22,13 @@ public interface AiSmsJobDAO {
     @Options(useGeneratedKeys=true, keyColumn="id")
     int insert(AiSmsJob aiSmsJob);
 
-    @Select("SELECT * FROM AI_SMS_JOB WHERE ID=#{id}")
+    @Select("SELECT A.*,P.PROVINCE,P.CITY,P.TEL_OPERATOR FROM AI_SMS_JOB A LEFT JOIN PHONE_IDENTIFY P ON A.PHONE=P.PHONE  WHERE A.ID=#{id}")
     AiSmsJob selectByPrimaryKey(@Param("id") Integer id);
 
     @Select("SELECT * FROM AI_SMS_JOB WHERE AI_SEQ=#{aiSeq}")
     AiSmsJob selectByAiSeq(@Param("aiSeq") String aiSeq);
 
-    @Select("SELECT * FROM AI_SMS_JOB WHERE ID=#{id} for update")
+    @Select("SELECT A.*,P.PROVINCE,P.CITY,P.TEL_OPERATOR FROM AI_SMS_JOB A LEFT JOIN PHONE_IDENTIFY P ON A.PHONE=P.PHONE  WHERE A.ID=#{id} for update")
     AiSmsJob lockByPrimaryKey(@Param("id") Integer id);
 
     @Update("UPDATE `ai_sms_job` \n" +
@@ -37,15 +37,19 @@ public interface AiSmsJobDAO {
             "WHERE `ID` = #{id}")
     int updateByPrimaryKey(AiSmsJob record);
 
+
     @Select("<script>" +
-            "SELECT * FROM AI_SMS_JOB " +
+            "SELECT A.*,P.PROVINCE,P.CITY,P.TEL_OPERATOR FROM AI_SMS_JOB A LEFT JOIN PHONE_IDENTIFY P ON A.PHONE=P.PHONE " +
             "<where>" +
-            "<if test='phone != null'> " +
+            "<if test='id != null and id !=\"\"'> " +
+            "AND A.ID = #{id}" +
+            "</if>" +
+            "<if test='phone != null and phone !=\"\"'> " +
             "<bind name='phone' value=\"'%'+phone+'%'\"/>" +
-            "AND PHONE LIKE #{phone}" +
+            "AND A.PHONE LIKE #{phone}" +
             "</if>" +
             "</where>" +
-            "ORDER BY ID DESC" +
+            "ORDER BY A.ID DESC" +
             "</script>")
     List<AiSmsJob> queryList(AiSmsJob cond);
 }

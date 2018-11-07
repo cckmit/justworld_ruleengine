@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.justworld.custget.ruleengine.dao.NotifyDAO">
+  <resultMap id="BaseResultMap" type="com.justworld.custget.ruleengine.service.bo.Notify">
+    <id column="ID" jdbcType="INTEGER" property="id" />
+    <result column="CREATE_TIME" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="NOTIFY_TYPE" jdbcType="VARCHAR" property="notifyType" />
+    <result column="STATUS" jdbcType="CHAR" property="status" />
+    <result column="NOTIFY_KEY" jdbcType="VARCHAR" property="notifyKey" />
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="com.justworld.custget.ruleengine.service.bo.Notify">
+    <result column="CONTENT" jdbcType="LONGVARCHAR" property="content" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    ID, CREATE_TIME, NOTIFY_TYPE, `STATUS`, NOTIFY_KEY
+  </sql>
+  <sql id="Blob_Column_List">
+    CONTENT
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="ResultMapWithBLOBs">
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from notify
+    where ID = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from notify
+    where ID = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insertSelective" keyColumn="ID" keyProperty="id" parameterType="com.justworld.custget.ruleengine.service.bo.Notify" useGeneratedKeys="true">
+    insert into notify
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="createTime != null">
+        CREATE_TIME,
+      </if>
+      <if test="notifyType != null">
+        NOTIFY_TYPE,
+      </if>
+      <if test="status != null">
+        `STATUS`,
+      </if>
+      <if test="notifyKey != null">
+        NOTIFY_KEY,
+      </if>
+      <if test="content != null">
+        CONTENT,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="notifyType != null">
+        #{notifyType,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=CHAR},
+      </if>
+      <if test="notifyKey != null">
+        #{notifyKey,jdbcType=VARCHAR},
+      </if>
+      <if test="content != null">
+        #{content,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.justworld.custget.ruleengine.service.bo.Notify">
+    update notify
+    <set>
+      <if test="createTime != null">
+        CREATE_TIME = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="notifyType != null">
+        NOTIFY_TYPE = #{notifyType,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        `STATUS` = #{status,jdbcType=CHAR},
+      </if>
+      <if test="notifyKey != null">
+        NOTIFY_KEY = #{notifyKey,jdbcType=VARCHAR},
+      </if>
+      <if test="content != null">
+        CONTENT = #{content,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where ID = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.justworld.custget.ruleengine.service.bo.Notify">
+    update notify
+    set CREATE_TIME = #{createTime,jdbcType=TIMESTAMP},
+      NOTIFY_TYPE = #{notifyType,jdbcType=VARCHAR},
+      `STATUS` = #{status,jdbcType=CHAR},
+      NOTIFY_KEY = #{notifyKey,jdbcType=VARCHAR},
+      CONTENT = #{content,jdbcType=LONGVARCHAR}
+    where ID = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.justworld.custget.ruleengine.service.bo.Notify">
+    update notify
+    set CREATE_TIME = #{createTime,jdbcType=TIMESTAMP},
+      NOTIFY_TYPE = #{notifyType,jdbcType=VARCHAR},
+      `STATUS` = #{status,jdbcType=CHAR},
+      NOTIFY_KEY = #{notifyKey,jdbcType=VARCHAR}
+    where ID = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

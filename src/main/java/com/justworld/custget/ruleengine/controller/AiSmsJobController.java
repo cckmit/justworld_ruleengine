@@ -37,6 +37,7 @@ public class AiSmsJobController {
     }
 
     @GetMapping(value = "weibocode")
+    @ResponseBody
     public String getSinaAuth(String code){
         sinaShortUrlGenerator.getToken(code);
         return "successs";

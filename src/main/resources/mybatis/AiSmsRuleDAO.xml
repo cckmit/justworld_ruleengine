@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.justworld.custget.ruleengine.dao.AiSmsRuleDAO">
+  <resultMap id="BaseResultMap" type="com.justworld.custget.ruleengine.service.bo.AiSmsRule">
+    <id column="ID" jdbcType="INTEGER" property="id" />
+    <result column="RULE_TYPE" jdbcType="VARCHAR" property="ruleType" />
+    <result column="RULE_KEY" jdbcType="VARCHAR" property="ruleKey" />
+    <result column="DISPATCHER_KEY" jdbcType="INTEGER" property="dispatcherKey" />
+    <result column="STATUS" jdbcType="CHAR" property="status" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    ID, RULE_TYPE, RULE_KEY, DISPATCHER_KEY, `STATUS`
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from ai_sms_rule
+    where ID = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from ai_sms_rule
+    where ID = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" keyColumn="ID" keyProperty="id" parameterType="com.justworld.custget.ruleengine.service.bo.AiSmsRule" useGeneratedKeys="true">
+    insert into ai_sms_rule (RULE_TYPE, RULE_KEY, DISPATCHER_KEY, 
+      `STATUS`)
+    values (#{ruleType,jdbcType=VARCHAR}, #{ruleKey,jdbcType=VARCHAR}, #{dispatcherKey,jdbcType=INTEGER}, 
+      #{status,jdbcType=CHAR})
+  </insert>
+  <insert id="insertSelective" keyColumn="ID" keyProperty="id" parameterType="com.justworld.custget.ruleengine.service.bo.AiSmsRule" useGeneratedKeys="true">
+    insert into ai_sms_rule
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="ruleType != null">
+        RULE_TYPE,
+      </if>
+      <if test="ruleKey != null">
+        RULE_KEY,
+      </if>
+      <if test="dispatcherKey != null">
+        DISPATCHER_KEY,
+      </if>
+      <if test="status != null">
+        `STATUS`,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="ruleType != null">
+        #{ruleType,jdbcType=VARCHAR},
+      </if>
+      <if test="ruleKey != null">
+        #{ruleKey,jdbcType=VARCHAR},
+      </if>
+      <if test="dispatcherKey != null">
+        #{dispatcherKey,jdbcType=INTEGER},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=CHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.justworld.custget.ruleengine.service.bo.AiSmsRule">
+    update ai_sms_rule
+    <set>
+      <if test="ruleType != null">
+        RULE_TYPE = #{ruleType,jdbcType=VARCHAR},
+      </if>
+      <if test="ruleKey != null">
+        RULE_KEY = #{ruleKey,jdbcType=VARCHAR},
+      </if>
+      <if test="dispatcherKey != null">
+        DISPATCHER_KEY = #{dispatcherKey,jdbcType=INTEGER},
+      </if>
+      <if test="status != null">
+        `STATUS` = #{status,jdbcType=CHAR},
+      </if>
+    </set>
+    where ID = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.justworld.custget.ruleengine.service.bo.AiSmsRule">
+    update ai_sms_rule
+    set RULE_TYPE = #{ruleType,jdbcType=VARCHAR},
+      RULE_KEY = #{ruleKey,jdbcType=VARCHAR},
+      DISPATCHER_KEY = #{dispatcherKey,jdbcType=INTEGER},
+      `STATUS` = #{status,jdbcType=CHAR}
+    where ID = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

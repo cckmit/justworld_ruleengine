@@ -67,6 +67,11 @@
             <artifactId>pagehelper-spring-boot-starter</artifactId> <!-- 特别注意版本问题, 看到评论以后得以纠正 -->
             <version>1.2.3</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-collections4</artifactId>
+            <version>4.1</version>
+        </dependency>
 
 
         <dependency>
