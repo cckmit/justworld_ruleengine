@@ -37,6 +37,11 @@ public class Dic implements Serializable {
      */
     private String dicInfo;
 
+    /**
+     * 字典值
+     */
+    private String dicValue;
+
     private static final long serialVersionUID = 1L;
 
     public Integer getId() {
@@ -85,5 +90,13 @@ public class Dic implements Serializable {
 
     public void setDicInfo(String dicInfo) {
         this.dicInfo = dicInfo;
+    }
+
+    public String getDicValue() {
+        return dicValue;
+    }
+
+    public void setDicValue(String dicValue) {
+        this.dicValue = dicValue;
     }
 }

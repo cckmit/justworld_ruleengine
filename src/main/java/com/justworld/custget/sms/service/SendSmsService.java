@@ -1,14 +1,12 @@
-package com.justworld.custget.sms;
+package com.justworld.custget.sms.service;
 
+import com.justworld.custget.ruleengine.dao.AiSmsJobDAO;
 import com.justworld.custget.ruleengine.dao.BaseConfigDAO;
 import com.justworld.custget.ruleengine.dao.NotifyDAO;
 import com.justworld.custget.ruleengine.dao.SendSmsDAO;
-import com.justworld.custget.ruleengine.dao.SmsDispatcherDAO;
 import com.justworld.custget.ruleengine.service.bo.Notify;
 import com.justworld.custget.ruleengine.service.bo.SendSms;
-import com.justworld.custget.ruleengine.service.bo.SmsDispatcher;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.tomcat.util.security.MD5Encoder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -22,9 +20,6 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
 
@@ -40,6 +35,8 @@ public class SendSmsService {
     private BaseConfigDAO baseConfigDAO;
     @Autowired
     private NotifyDAO notifyDAO;
+    @Autowired
+    private AiSmsJobDAO aiSmsJobDAO;
 
     /**
      * 用聚达渠道发送数据库中的待发短信
@@ -139,9 +136,15 @@ public class SendSmsService {
                 //发通知
                 Notify errorNotify = Notify.createDispatcherNotify(lockId,"本渠道短信发送出现故障:"+cid);
                 notifyDAO.insert(errorNotify);
+
+                //短信任务异常
+                aiSmsJobDAO.updateJobBySendSmsStatus("9",dispatcherId,lockId);
             }else{
                 sendSmsUpdate.setStatus(1);
                 sendSmsUpdate.setMsgId(cid);
+
+                //任务成功
+                aiSmsJobDAO.updateJobBySendSmsStatus("3",dispatcherId,lockId);
             }
 
         } catch (Exception e){

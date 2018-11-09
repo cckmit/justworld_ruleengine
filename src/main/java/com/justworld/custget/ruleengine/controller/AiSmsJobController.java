@@ -20,6 +20,7 @@ import java.util.List;
 @Slf4j
 @Controller
 @RequestMapping(value = "/aismsjob")
+@CrossOrigin
 public class AiSmsJobController {
 
     @Autowired

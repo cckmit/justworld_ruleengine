@@ -1,11 +1,12 @@
 package com.justworld.custget.ruleengine.dao;
 
 import com.justworld.custget.ruleengine.service.bo.AiSmsJob;
-import org.apache.ibatis.annotations.*;
-import org.springframework.context.annotation.Bean;
-import org.springframework.data.repository.query.Param;
+import org.apache.ibatis.annotations.Insert;
+import org.apache.ibatis.annotations.Options;
+import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 
@@ -52,4 +53,9 @@ public interface AiSmsJobDAO {
             "ORDER BY A.ID DESC" +
             "</script>")
     List<AiSmsJob> queryList(AiSmsJob cond);
+
+    @Update("UPDATE `ai_sms_job` a JOIN send_sms b ON a.`SEND_SMS_ID`=b.`ID`\n" +
+            "SET a.`status`=#{status}\n" +
+            "WHERE b.DISPATCHER_ID=#{dispatcherId} AND b.LOCK_ID=#{lockId} AND b.STATUS='9'")
+    int updateJobBySendSmsStatus(@Param("status")String status, @Param("dispatcherId")String dispatcherId, @Param("lockId")String lockId);
 }

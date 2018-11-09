@@ -16,6 +16,7 @@ import java.util.List;
 @Slf4j
 @Controller
 @RequestMapping(value = "/sysconfig")
+@CrossOrigin
 public class SysConfigController {
     @Autowired
     private BaseConfigDAO baseConfigDAO;

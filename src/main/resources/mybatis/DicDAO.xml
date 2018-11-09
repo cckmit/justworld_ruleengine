@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.justworld.custget.ruleengine.dao.DicDAO">
+  <resultMap id="BaseResultMap" type="com.justworld.custget.ruleengine.service.bo.Dic">
+    <id column="ID" jdbcType="INTEGER" property="id" />
+    <result column="GROUP_NAME" jdbcType="VARCHAR" property="groupName" />
+    <result column="DIC_GROUP" jdbcType="VARCHAR" property="dicGroup" />
+    <result column="PID" jdbcType="INTEGER" property="pid" />
+    <result column="DIC_NAME" jdbcType="VARCHAR" property="dicName" />
+    <result column="DIC_INFO" jdbcType="VARCHAR" property="dicInfo" />
+    <result column="DIC_VALUE" jdbcType="VARCHAR" property="dicValue" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    ID, GROUP_NAME, DIC_GROUP, PID, DIC_NAME, DIC_INFO, DIC_VALUE
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from dic
+    where ID = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from dic
+    where ID = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insertSelective" keyColumn="ID" keyProperty="id" parameterType="com.justworld.custget.ruleengine.service.bo.Dic" useGeneratedKeys="true">
+    insert into dic
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="groupName != null">
+        GROUP_NAME,
+      </if>
+      <if test="dicGroup != null">
+        DIC_GROUP,
+      </if>
+      <if test="pid != null">
+        PID,
+      </if>
+      <if test="dicName != null">
+        DIC_NAME,
+      </if>
+      <if test="dicInfo != null">
+        DIC_INFO,
+      </if>
+      <if test="dicValue != null">
+        DIC_VALUE,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="groupName != null">
+        #{groupName,jdbcType=VARCHAR},
+      </if>
+      <if test="dicGroup != null">
+        #{dicGroup,jdbcType=VARCHAR},
+      </if>
+      <if test="pid != null">
+        #{pid,jdbcType=INTEGER},
+      </if>
+      <if test="dicName != null">
+        #{dicName,jdbcType=VARCHAR},
+      </if>
+      <if test="dicInfo != null">
+        #{dicInfo,jdbcType=VARCHAR},
+      </if>
+      <if test="dicValue != null">
+        #{dicValue,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.justworld.custget.ruleengine.service.bo.Dic">
+    update dic
+    <set>
+      <if test="groupName != null">
+        GROUP_NAME = #{groupName,jdbcType=VARCHAR},
+      </if>
+      <if test="dicGroup != null">
+        DIC_GROUP = #{dicGroup,jdbcType=VARCHAR},
+      </if>
+      <if test="pid != null">
+        PID = #{pid,jdbcType=INTEGER},
+      </if>
+      <if test="dicName != null">
+        DIC_NAME = #{dicName,jdbcType=VARCHAR},
+      </if>
+      <if test="dicInfo != null">
+        DIC_INFO = #{dicInfo,jdbcType=VARCHAR},
+      </if>
+      <if test="dicValue != null">
+        DIC_VALUE = #{dicValue,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where ID = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.justworld.custget.ruleengine.service.bo.Dic">
+    update dic
+    set GROUP_NAME = #{groupName,jdbcType=VARCHAR},
+      DIC_GROUP = #{dicGroup,jdbcType=VARCHAR},
+      PID = #{pid,jdbcType=INTEGER},
+      DIC_NAME = #{dicName,jdbcType=VARCHAR},
+      DIC_INFO = #{dicInfo,jdbcType=VARCHAR},
+      DIC_VALUE = #{dicValue,jdbcType=VARCHAR}
+    where ID = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

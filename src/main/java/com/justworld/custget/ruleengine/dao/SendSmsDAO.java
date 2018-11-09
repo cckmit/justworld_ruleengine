@@ -1,10 +1,7 @@
 package com.justworld.custget.ruleengine.dao;
 
 import com.justworld.custget.ruleengine.service.bo.SendSms;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
-import org.apache.ibatis.annotations.Update;
+import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -21,6 +18,7 @@ public interface SendSmsDAO {
             "      #{msgId}, #{smsType}, #{dispatcherId}, \n" +
             "      0, MAX_RETRY_TIMES, #{remk}\n" +
             "      FROM SMS_TYPE_TIME WHERE TYPE_KEY=#{smsType}")
+    @Options(useGeneratedKeys=true, keyColumn="id")
     int insert(SendSms record);
 
     @Select("SELECT * FROM SEND_SMS WHERE DISPATCHER_ID=#{dispatcherId} AND LOCK_ID=#{lockId} AND STATUS='9'")

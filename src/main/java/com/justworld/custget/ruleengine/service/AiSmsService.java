@@ -199,10 +199,11 @@ public class AiSmsService {
         sendSmsDAO.insert(sms);
 
         aiSmsJob.setSendSmsId(sms.getId() + "");
+        aiSmsJob.setStatus("2");
         aiSmsJobDAO.updateByPrimaryKey(aiSmsJob);
 
         //发送发短信通知
-        ListenableFuture future = kafkaTemplate.send("send_sms_notify", aiSmsJob.getId() + "");
+        ListenableFuture future = kafkaTemplate.send("send_sms_notify_"+dispatcher.getDispatcherKey(), aiSmsJob.getId() + "");
         future.addCallback(o -> log.debug("挂机短信任务{}短信发送通知消息发送成功：", o), throwable -> log.error("短信发送通知消息发送失败", throwable));
     }
 
