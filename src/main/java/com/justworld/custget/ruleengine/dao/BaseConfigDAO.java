@@ -32,6 +32,14 @@ public interface BaseConfigDAO {
             "  AND `CFG_KEY` = #{cfgKey}")
     int updateByPrimaryKey(BaseConfig record);
 
-    @Select("SELECT * FROM `base_config` WHERE CFG_GROUP=#{cfgGroup}")
+    @Select("<script>" +
+            "SELECT * FROM `base_config` " +
+            "<where> " +
+            "<if test='cfgGroup != null and cfgGroup !=\"\"'> " +
+            "CFG_GROUP=#{cfgGroup}" +
+            "</if>" +
+            "</where> " +
+            "ORDER BY CFG_GROUP,CFG_KEY" +
+            "</script>")
     List<BaseConfig> queryGroup(@Param("cfgGroup") String cfgGroup);
 }

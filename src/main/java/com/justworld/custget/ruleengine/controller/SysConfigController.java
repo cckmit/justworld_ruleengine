@@ -22,8 +22,8 @@ public class SysConfigController {
     private BaseConfigDAO baseConfigDAO;
 
     @ResponseBody
-    @PostMapping("/querySinaConfig")
-    public BaseResult<List<BaseConfig>> querySinaConfig(String cfgGroup){
+    @PostMapping("/queryList")
+    public BaseResult<List<BaseConfig>> queryList(String cfgGroup){
         try {
             List<BaseConfig> sinaConfigList = baseConfigDAO.queryGroup(cfgGroup);
             return BaseResult.buildSuccess(sinaConfigList);

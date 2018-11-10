@@ -5,21 +5,14 @@
     <id column="ID" jdbcType="VARCHAR" property="id" />
     <result column="TEMPLATE_NAME" jdbcType="VARCHAR" property="templateName" />
     <result column="REMK" jdbcType="VARCHAR" property="remk" />
-  </resultMap>
-  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="com.justworld.custget.ruleengine.service.bo.SmsTemplate">
-    <result column="CONTENT" jdbcType="LONGVARCHAR" property="content" />
+    <result column="CONTENT" jdbcType="VARCHAR" property="content" />
   </resultMap>
   <sql id="Base_Column_List">
-    ID, TEMPLATE_NAME, REMK
+    ID, TEMPLATE_NAME, REMK, CONTENT
   </sql>
-  <sql id="Blob_Column_List">
-    CONTENT
-  </sql>
-  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="ResultMapWithBLOBs">
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
-    ,
-    <include refid="Blob_Column_List" />
     from sms_template
     where ID = #{id,jdbcType=VARCHAR}
   </select>
@@ -27,37 +20,6 @@
     delete from sms_template
     where ID = #{id,jdbcType=VARCHAR}
   </delete>
-  <insert id="insert" keyColumn="ID" keyProperty="id" parameterType="com.justworld.custget.ruleengine.service.bo.SmsTemplate" useGeneratedKeys="true">
-    insert into sms_template (TEMPLATE_NAME, REMK, CONTENT
-      )
-    values (#{templateName,jdbcType=VARCHAR}, #{remk,jdbcType=VARCHAR}, #{content,jdbcType=LONGVARCHAR}
-      )
-  </insert>
-  <insert id="insertSelective" keyColumn="ID" keyProperty="id" parameterType="com.justworld.custget.ruleengine.service.bo.SmsTemplate" useGeneratedKeys="true">
-    insert into sms_template
-    <trim prefix="(" suffix=")" suffixOverrides=",">
-      <if test="templateName != null">
-        TEMPLATE_NAME,
-      </if>
-      <if test="remk != null">
-        REMK,
-      </if>
-      <if test="content != null">
-        CONTENT,
-      </if>
-    </trim>
-    <trim prefix="values (" suffix=")" suffixOverrides=",">
-      <if test="templateName != null">
-        #{templateName,jdbcType=VARCHAR},
-      </if>
-      <if test="remk != null">
-        #{remk,jdbcType=VARCHAR},
-      </if>
-      <if test="content != null">
-        #{content,jdbcType=LONGVARCHAR},
-      </if>
-    </trim>
-  </insert>
   <update id="updateByPrimaryKeySelective" parameterType="com.justworld.custget.ruleengine.service.bo.SmsTemplate">
     update sms_template
     <set>
@@ -68,22 +30,16 @@
         REMK = #{remk,jdbcType=VARCHAR},
       </if>
       <if test="content != null">
-        CONTENT = #{content,jdbcType=LONGVARCHAR},
+        CONTENT = #{content,jdbcType=VARCHAR},
       </if>
     </set>
-    where ID = #{id,jdbcType=VARCHAR}
-  </update>
-  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.justworld.custget.ruleengine.service.bo.SmsTemplate">
-    update sms_template
-    set TEMPLATE_NAME = #{templateName,jdbcType=VARCHAR},
-      REMK = #{remk,jdbcType=VARCHAR},
-      CONTENT = #{content,jdbcType=LONGVARCHAR}
     where ID = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="com.justworld.custget.ruleengine.service.bo.SmsTemplate">
     update sms_template
     set TEMPLATE_NAME = #{templateName,jdbcType=VARCHAR},
-      REMK = #{remk,jdbcType=VARCHAR}
+      REMK = #{remk,jdbcType=VARCHAR},
+      CONTENT = #{content,jdbcType=VARCHAR}
     where ID = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>
