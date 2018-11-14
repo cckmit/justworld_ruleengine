@@ -1,0 +1,24 @@
+logging:
+  pattern:
+    console: "%t %d{yyyy-MM-dd HH:mm:ss.SSS} %-5level %class{36}.%M %L - %msg%xEx%n"
+  level:
+    com.justworld: trace
+  file: /var/logs/runningtrace.log
+spring:
+  kafka:
+    consumer:
+      bootstrap-servers: kafka:9092
+    producer:
+      bootstrap-servers: kafka:9092
+  datasource:
+    name: custget
+    druid:
+      #基本属性
+      url: jdbc:mysql://mysql:3306/custget?useUnicode=true&characterEncoding=UTF-8&allowMultiQueries=true
+      username: root
+      password: Abcjust_world
+      #配置初始化大小/最小/最大
+      initial-size: 50
+      min-idle: 50
+      max-active: 100
+

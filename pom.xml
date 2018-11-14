@@ -5,7 +5,7 @@
 
     <groupId>com.justworld.custget</groupId>
     <artifactId>ruleengine</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>ruleengine</name>
