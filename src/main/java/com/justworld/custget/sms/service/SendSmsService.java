@@ -41,7 +41,7 @@ public class SendSmsService {
     /**
      * 用聚达渠道发送数据库中的待发短信
      */
-    @Scheduled(cron = "0 0/10 * * * *")
+    @Scheduled(cron = "0 0/30 * * * *")
     @KafkaListener(topics = "send_sms_notify_1")
     public void sendJuDaSmsYd(){
         String dispatcherId = "1";
@@ -55,7 +55,7 @@ public class SendSmsService {
     /**
      * 用聚达电信渠道发送数据库中的待发短信
      */
-    @Scheduled(cron = "10 0/10 * * * *")
+    @Scheduled(cron = "10 0/30 * * * *")
     @KafkaListener(topics = "send_sms_notify_3")
     public void sendJuDaSmsDX(){
         String dispatcherId = "3";
@@ -69,7 +69,7 @@ public class SendSmsService {
     /**
      * 用聚达联通渠道发送数据库中的待发短信
      */
-    @Scheduled(cron = "20 0/10 * * * *")
+    @Scheduled(cron = "20 0/30 * * * *")
     @KafkaListener(topics = "send_sms_notify_2")
     public void sendJuDaSmsLT(){
         String dispatcherId = "2";

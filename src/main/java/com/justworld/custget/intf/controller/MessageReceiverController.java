@@ -44,7 +44,7 @@ public class MessageReceiverController {
             RequestHead reqHead = req.getHead();
             //校验用户密码
             SmsJobUser user = smsJobUserDAO.selectByUsername("1",reqHead.getUsername());
-            if(!user.getPassword().equals(DigestUtils.md5DigestAsHex(reqHead.getPassword().getBytes()).toUpperCase())){
+            if(!user.getPassword().equals(reqHead.getPassword())){
                 throw new RtcdExcception("0001","用户密码不正确");
             }
 

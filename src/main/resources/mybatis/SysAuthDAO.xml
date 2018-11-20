@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.justworld.custget.ruleengine.dao.SysAuthDAO">
+  <resultMap id="BaseResultMap" type="com.justworld.custget.ruleengine.service.bo.SysAuth">
+    <id column="AUTH_ID" jdbcType="INTEGER" property="authId" />
+    <result column="AUTH_NAME" jdbcType="VARCHAR" property="authName" />
+    <result column="REMK" jdbcType="VARCHAR" property="remk" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    AUTH_ID, AUTH_NAME, REMK
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from sys_auth
+    where AUTH_ID = #{authId,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from sys_auth
+    where AUTH_ID = #{authId,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" keyColumn="AUTH_ID" keyProperty="authId" parameterType="com.justworld.custget.ruleengine.service.bo.SysAuth" useGeneratedKeys="true">
+    insert into sys_auth (AUTH_NAME, REMK)
+    values (#{authName,jdbcType=VARCHAR}, #{remk,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" keyColumn="AUTH_ID" keyProperty="authId" parameterType="com.justworld.custget.ruleengine.service.bo.SysAuth" useGeneratedKeys="true">
+    insert into sys_auth
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="authName != null">
+        AUTH_NAME,
+      </if>
+      <if test="remk != null">
+        REMK,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="authName != null">
+        #{authName,jdbcType=VARCHAR},
+      </if>
+      <if test="remk != null">
+        #{remk,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.justworld.custget.ruleengine.service.bo.SysAuth">
+    update sys_auth
+    <set>
+      <if test="authName != null">
+        AUTH_NAME = #{authName,jdbcType=VARCHAR},
+      </if>
+      <if test="remk != null">
+        REMK = #{remk,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where AUTH_ID = #{authId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.justworld.custget.ruleengine.service.bo.SysAuth">
+    update sys_auth
+    set AUTH_NAME = #{authName,jdbcType=VARCHAR},
+      REMK = #{remk,jdbcType=VARCHAR}
+    where AUTH_ID = #{authId,jdbcType=INTEGER}
+  </update>
+</mapper>

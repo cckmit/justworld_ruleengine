@@ -7,6 +7,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 
 /**
  * sys_user
@@ -14,7 +15,7 @@ import java.util.Date;
  */
 @Data
 public class SysUser implements Serializable, UserDetails {
-    private String userId;
+    private Integer userId;
 
     private String username;
 
@@ -24,30 +25,9 @@ public class SysUser implements Serializable, UserDetails {
 
     private Date lastLogin;
 
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return null;
-    }
+    private List<SysRole> roleList;
 
-    @Override
-    public boolean isAccountNonExpired() {
-        return false;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return false;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return false;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return false;
-    }
+    private List<SysAuth> authList;
 
     /**
      * 1=可用，0=停用
@@ -55,4 +35,29 @@ public class SysUser implements Serializable, UserDetails {
     private String status;
 
     private static final long serialVersionUID = 1L;
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return authList;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
 }

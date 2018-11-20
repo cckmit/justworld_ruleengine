@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.justworld.custget.ruleengine.dao.SysRoleDAO">
+  <resultMap id="BaseResultMap" type="com.justworld.custget.ruleengine.service.bo.SysRole">
+    <id column="ROLE_ID" jdbcType="INTEGER" property="roleId" />
+    <result column="ROLE_NAME" jdbcType="VARCHAR" property="roleName" />
+    <result column="REMK" jdbcType="VARCHAR" property="remk" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    ROLE_ID, ROLE_NAME, REMK
+  </sql>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from sys_role
+    where ROLE_ID = #{roleId,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" keyColumn="ROLE_ID" keyProperty="roleId" parameterType="com.justworld.custget.ruleengine.service.bo.SysRole" useGeneratedKeys="true">
+    insert into sys_role (ROLE_NAME, REMK)
+    values (#{roleName,jdbcType=VARCHAR}, #{remk,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" keyColumn="ROLE_ID" keyProperty="roleId" parameterType="com.justworld.custget.ruleengine.service.bo.SysRole" useGeneratedKeys="true">
+    insert into sys_role
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="roleName != null">
+        ROLE_NAME,
+      </if>
+      <if test="remk != null">
+        REMK,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="roleName != null">
+        #{roleName,jdbcType=VARCHAR},
+      </if>
+      <if test="remk != null">
+        #{remk,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.justworld.custget.ruleengine.service.bo.SysRole">
+    update sys_role
+    <set>
+      <if test="roleName != null">
+        ROLE_NAME = #{roleName,jdbcType=VARCHAR},
+      </if>
+      <if test="remk != null">
+        REMK = #{remk,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where ROLE_ID = #{roleId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.justworld.custget.ruleengine.service.bo.SysRole">
+    update sys_role
+    set ROLE_NAME = #{roleName,jdbcType=VARCHAR},
+      REMK = #{remk,jdbcType=VARCHAR}
+    where ROLE_ID = #{roleId,jdbcType=INTEGER}
+  </update>
+</mapper>

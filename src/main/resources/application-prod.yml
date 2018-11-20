@@ -8,6 +8,8 @@ spring:
   kafka:
     consumer:
       bootstrap-servers: kafka:9092
+      auto.offset.reset: latest
+      concurrency: 10
     producer:
       bootstrap-servers: kafka:9092
   datasource:
@@ -22,3 +24,8 @@ spring:
       min-idle: 50
       max-active: 100
 
+#后台登录token设置
+jwt_token:
+  secret: justworld!QAZ
+  expire_second: 604800
+  remember_me_expire_second: 604800

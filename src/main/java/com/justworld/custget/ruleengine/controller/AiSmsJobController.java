@@ -1,6 +1,5 @@
 package com.justworld.custget.ruleengine.controller;
 
-import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.justworld.custget.ruleengine.common.BaseResult;
@@ -9,10 +8,9 @@ import com.justworld.custget.ruleengine.service.bo.AiSmsJob;
 import com.justworld.custget.ruleengine.service.shorturl.SinaShortUrlGenerator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 /**
  * AI短信控制器
@@ -31,6 +29,7 @@ public class AiSmsJobController {
 
     @ResponseBody
     @PostMapping(value = "/queryList/{pageNo}/{pageSize}")
+    @PreAuthorize("hasAuthority('1')")
     public BaseResult<PageInfo<AiSmsJob>> queryJobList(@PathVariable("pageNo") int pageNo, @PathVariable("pageSize")int pageSize, @RequestBody AiSmsJob cond){
 
         PageHelper.startPage(pageNo,pageSize);

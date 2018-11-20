@@ -50,7 +50,7 @@ import java.util.Date;
     /**
      * 创建时间
      */
-    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
+//    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;
 
     /**
@@ -61,7 +61,7 @@ import java.util.Date;
     /**
      * 短信链接最后点击时间
      */
-    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
+//    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     private Timestamp clickTime;
 
     /**
@@ -74,6 +74,8 @@ import java.util.Date;
     private String smsShortUrl;
 
     private String sendSmsId;
+
+    private String smsTemplateContent;
 
     private static final long serialVersionUID = 1L;
 

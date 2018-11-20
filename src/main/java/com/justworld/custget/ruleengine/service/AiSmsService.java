@@ -18,9 +18,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.concurrent.ListenableFuture;
 
 import java.io.IOException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -136,43 +135,45 @@ public class AiSmsService {
      * @param message
      */
     @Transactional
-    @KafkaListener(topics = "short_url_handle")
-    public void handleShortUrlMessage(String message){
-        AiSmsJob aiSmsJob = aiSmsJobDAO.selectByPrimaryKey(Integer.valueOf(message));
+    @KafkaListener(topics = "short_url_handle", containerFactory = "kafkaListenerContainerFactory1")
+    public void handleShortUrlMessage(List<String> message){
+        List<AiSmsJob> jobList = aiSmsJobDAO.queryListByIds(message.stream().map(Integer::valueOf).collect(Collectors.toList()));
 
-        if(aiSmsJob.getShortUrlStatus().equals("1")) {
 
-            //查询要处理的短信模板
-            SmsTemplate smsTemplate = smsTemplateDAO.selectByPrimaryKey(aiSmsJob.getSmsTemplateId());
+        //获取短链
+        IShortUrlGenerator generator = shortUrlGeneratorFactory.getGenerator();
+        Map<String, String> map = new HashMap<>();
+        BaseConfig clickStatCfg = baseConfigDAO.selectByPrimaryKey("aismsjob-config", "click-url");
+        for (AiSmsJob aiSmsJob : jobList) {
+            if (aiSmsJob.getShortUrlStatus().equals("1")) {
+                map.put(clickStatCfg.getCfgValue() + "/" + aiSmsJob.getId(), null);
+            }
+        }
+        //生成短链
+            generator.convertShortUrl(map);
+
+        //回写job表
+        for (AiSmsJob aiSmsJob : jobList) {
 
             //分析链接
-            String longUrl = StringUtils.substringsBetween(smsTemplate.getContent(), "<<", ">>")[0];
+            String longUrl = StringUtils.substringsBetween(aiSmsJob.getSmsTemplateContent(), "<<", ">>")[0];
             log.trace("短信模板中的长链接为:" + longUrl);
-
-            //替换链接
-            BaseConfig clickStatCfg = baseConfigDAO.selectByPrimaryKey("aismsjob-config","click-url");
-            String replaceUrl = clickStatCfg.getCfgValue()+"/"+aiSmsJob.getId();
-
-            //获取短链
-            IShortUrlGenerator generator = shortUrlGeneratorFactory.getGenerator();
-            Map<String, String> map = new HashMap<>();
-            map.put(replaceUrl, null);
-            generator.convertShortUrl(map);
             aiSmsJob = aiSmsJobDAO.lockByPrimaryKey(aiSmsJob.getId());
             aiSmsJob.setSmsTemplateUrl(longUrl);
+            String replaceUrl = clickStatCfg.getCfgValue() + "/" + aiSmsJob.getId();
             aiSmsJob.setSmsShortUrl(map.get(replaceUrl));
             log.trace("生成的短链接为" + aiSmsJob.getSmsShortUrl());
 
             aiSmsJob.setShortUrlStatus("2");
-            aiSmsJobDAO.updateByPrimaryKey(aiSmsJob);
-        }
 
-        //如果号码识别完成，则插入短信
-        aiSmsJob = aiSmsJobDAO.lockByPrimaryKey(aiSmsJob.getId());
-        if(aiSmsJob.getPhoneStatus().equals("2")){   //号码已识别
-            log.trace("短链接已生成，直接插入短信");
-            //生成短信
-            sendSms(aiSmsJob);
+            //如果号码识别完成，则插入短信
+            if(aiSmsJob.getPhoneStatus().equals("2")){   //号码已识别
+                log.trace("短链接已生成，直接插入短信");
+                //生成短信
+                sendSms(aiSmsJob);
+            }
+            aiSmsJobDAO.updateByPrimaryKey(aiSmsJob);
+
         }
 
     }

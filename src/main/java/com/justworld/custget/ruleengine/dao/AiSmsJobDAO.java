@@ -54,6 +54,15 @@ public interface AiSmsJobDAO {
             "</script>")
     List<AiSmsJob> queryList(AiSmsJob cond);
 
+    @Select("<script>" +
+            "SELECT A.*,S.CONTENT smsTemplateContent FROM AI_SMS_JOB A JOIN SMS_TEMPLATE S ON A.SMS_TEMPLATE_ID=S.ID " +
+            "WHERE A.ID IN " +
+            "<foreach item='id' index='index' collection='idList' open='(' separator=',' close=')'>" +
+            "#{id}" +
+            "</foreach>" +
+            "</script>")
+    List<AiSmsJob> queryListByIds(@Param("idList")List<Integer> idList);
+
     @Update("UPDATE `ai_sms_job` a JOIN send_sms b ON a.`SEND_SMS_ID`=b.`ID`\n" +
             "SET a.`status`=#{status}\n" +
             "WHERE b.DISPATCHER_ID=#{dispatcherId} AND b.LOCK_ID=#{lockId} AND b.STATUS='9'")
