@@ -149,31 +149,35 @@ public class AiSmsService {
                 map.put(clickStatCfg.getCfgValue() + "/" + aiSmsJob.getId(), null);
             }
         }
-        //生成短链
+
+        if(map.size()>0) {
+            //生成短链
             generator.convertShortUrl(map);
+        }
 
         //回写job表
         for (AiSmsJob aiSmsJob : jobList) {
+            if (aiSmsJob.getShortUrlStatus().equals("1")) {
 
-            //分析链接
-            String longUrl = StringUtils.substringsBetween(aiSmsJob.getSmsTemplateContent(), "<<", ">>")[0];
-            log.trace("短信模板中的长链接为:" + longUrl);
-            aiSmsJob = aiSmsJobDAO.lockByPrimaryKey(aiSmsJob.getId());
-            aiSmsJob.setSmsTemplateUrl(longUrl);
-            String replaceUrl = clickStatCfg.getCfgValue() + "/" + aiSmsJob.getId();
-            aiSmsJob.setSmsShortUrl(map.get(replaceUrl));
-            log.trace("生成的短链接为" + aiSmsJob.getSmsShortUrl());
+                //分析链接
+                String longUrl = StringUtils.substringsBetween(aiSmsJob.getSmsTemplateContent(), "<<", ">>")[0];
+                log.trace("短信模板中的长链接为:" + longUrl);
+                aiSmsJob = aiSmsJobDAO.lockByPrimaryKey(aiSmsJob.getId());
+                aiSmsJob.setSmsTemplateUrl(longUrl);
+                String replaceUrl = clickStatCfg.getCfgValue() + "/" + aiSmsJob.getId();
+                aiSmsJob.setSmsShortUrl(map.get(replaceUrl));
+                log.trace("生成的短链接为" + aiSmsJob.getSmsShortUrl());
 
-            aiSmsJob.setShortUrlStatus("2");
+                aiSmsJob.setShortUrlStatus("2");
 
-            //如果号码识别完成，则插入短信
-            if(aiSmsJob.getPhoneStatus().equals("2")){   //号码已识别
-                log.trace("短链接已生成，直接插入短信");
-                //生成短信
-                sendSms(aiSmsJob);
+                //如果号码识别完成，则插入短信
+                if (aiSmsJob.getPhoneStatus().equals("2")) {   //号码已识别
+                    log.trace("短链接已生成，直接插入短信");
+                    //生成短信
+                    sendSms(aiSmsJob);
+                }
+                aiSmsJobDAO.updateByPrimaryKey(aiSmsJob);
             }
-            aiSmsJobDAO.updateByPrimaryKey(aiSmsJob);
-
         }
 
     }

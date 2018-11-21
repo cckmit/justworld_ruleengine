@@ -6,12 +6,9 @@ logging:
   file: /var/logs/runningtrace.log
 spring:
   kafka:
+    bootstrap-servers: kafka:9092
     consumer:
-      bootstrap-servers: kafka:9092
       auto.offset.reset: latest
-      concurrency: 10
-    producer:
-      bootstrap-servers: kafka:9092
   datasource:
     name: custget
     druid:

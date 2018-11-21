@@ -4,13 +4,14 @@ logging:
   level:
     com.justworld: trace
 #    org.springframework.security: trace
+    org.springframework.kafka: info
+    org.apache.kafka: info
+
 spring:
   kafka:
+    bootstrap-servers: 192.168.40.128:9092
     consumer:
-      bootstrap-servers: 192.168.40.128:9092
-      auto-offset-reset: latest
-  producer:
-      bootstrap-servers: 192.168.40.128:9092
+        auto-offset-reset: latest
   datasource:
     name: custget
     druid:

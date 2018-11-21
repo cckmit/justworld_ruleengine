@@ -1,6 +1,6 @@
 package com.justworld.custget.ruleengine.config;
 
-import com.alibaba.fastjson.JSON;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.justworld.custget.ruleengine.common.BaseResult;
 import com.justworld.custget.ruleengine.service.auth.JwtAuthenticationTokenFilter;
 import com.justworld.custget.ruleengine.service.auth.JwtTokenUtil;
@@ -38,6 +38,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     private JwtTokenUtil jwtTokenUtil;
     @Autowired
     JwtAuthenticationTokenFilter jwtAuthenticationTokenFilter;
+    @Autowired
+    private ObjectMapper mapper;
 
     @Override
     public void configure(AuthenticationManagerBuilder auth) throws Exception {
@@ -55,7 +57,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .exceptionHandling().authenticationEntryPoint((httpServletRequest, httpServletResponse, e) -> {
                     httpServletResponse.setCharacterEncoding("UTF-8");
                     httpServletResponse.setContentType("application/json; charset=utf-8");
-                    httpServletResponse.getWriter().write(JSON.toJSONString(BaseResult.buildFail("401", "请先登录")));
+                    httpServletResponse.getWriter().write(mapper.writeValueAsString(BaseResult.buildFail("401", "请先登录")));
                 })
                 .and()
                 .authorizeRequests()
@@ -84,12 +86,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                     }
                     httpServletResponse.setCharacterEncoding("UTF-8");
                     httpServletResponse.setContentType("application/json; charset=utf-8");
-                    httpServletResponse.getWriter().write(JSON.toJSONString(BaseResult.buildSuccess(JwtTokenUtil.TOKEN_PREFIX + token)));
+                    httpServletResponse.getWriter().write(mapper.writeValueAsString(BaseResult.buildSuccess(JwtTokenUtil.TOKEN_PREFIX + token)));
                 })
                 .failureHandler((httpServletRequest, httpServletResponse, e) -> {
                     httpServletResponse.setCharacterEncoding("UTF-8");
                     httpServletResponse.setContentType("application/json; charset=utf-8");
-                    httpServletResponse.getWriter().write(JSON.toJSONString(BaseResult.buildFail("400", "登录失败，请检查账号/密码是否正确")));
+                    httpServletResponse.getWriter().write(mapper.writeValueAsString(BaseResult.buildFail("400", "登录失败，请检查账号/密码是否正确")));
                 })
                 .permitAll()
 
@@ -111,7 +113,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                             }
                         }
                     }
-                    httpServletResponse.getWriter().write(JSON.toJSONString(BaseResult.buildSuccess()));
+                    httpServletResponse.getWriter().write(mapper.writeValueAsString(BaseResult.buildSuccess()));
                 })
                 .permitAll()
 
@@ -123,7 +125,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .exceptionHandling().accessDeniedHandler((httpServletRequest, httpServletResponse, e) -> {
                     httpServletResponse.setCharacterEncoding("UTF-8");
                     httpServletResponse.setContentType("application/json; charset=utf-8");
-                    httpServletResponse.getWriter().write(JSON.toJSONString(BaseResult.buildFail("403", "权限不足")));
+                    httpServletResponse.getWriter().write(mapper.writeValueAsString(BaseResult.buildFail("403", "权限不足")));
                 })
 
 //                .antMatchers("/aismsjob/**").hasAuthority("1")

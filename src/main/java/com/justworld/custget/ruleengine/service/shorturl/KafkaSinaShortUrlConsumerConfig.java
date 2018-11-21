@@ -17,7 +17,7 @@ import java.util.Map;
 @Configuration
 public class KafkaSinaShortUrlConsumerConfig {
 
-    @Value("${spring.kafka.consumer.bootstrap-servers}")
+    @Value("${spring.kafka.bootstrap-servers}")
     private String brokers;
 
     private String group1 = "SinaShortUrlGroup1";

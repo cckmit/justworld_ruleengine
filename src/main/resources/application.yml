@@ -12,8 +12,10 @@ spring:
   kafka:
     consumer:
       enable-auto-commit: true
-      group-id: ruleeinge
+      group-id: ruleeinge-consumer
       auto-offset-reset: latest
+    producer:
+      group-id: ruleeinge-producer
   datasource:
     type: com.alibaba.druid.pool.DruidDataSource #druid相关配置
     druid:
