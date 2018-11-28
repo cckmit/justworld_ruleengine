@@ -18,8 +18,8 @@ public interface SysUserDAO {
 
     @Select("SELECT * FROM SYS_USER WHERE USERNAME=#{username}")
     @Results({
-            @Result(column = "USER_ID",property = "roleList",many = @Many(select="com.justworld.custget.ruleengine.dao.SysRoleDAO.queryBySysUserId",fetchType = FetchType.LAZY)),
-            @Result(column = "USER_ID",property = "authList",many = @Many(select="com.justworld.custget.ruleengine.dao.SysAuthDAO.queryBySysUserId",fetchType = FetchType.LAZY))
+            @Result(column = "USER_ID",property = "roleList",many = @Many(select="com.justworld.custget.ruleengine.dao.SysRoleDAO.queryBySysUserId",fetchType = FetchType.EAGER)),
+            @Result(column = "USER_ID",property = "authList",many = @Many(select="com.justworld.custget.ruleengine.dao.SysAuthDAO.queryBySysUserId",fetchType = FetchType.EAGER))
     })
     SysUser selectByUsername(String username);
 

@@ -42,6 +42,10 @@ public class SmsClickController {
         aiSmsJobDAO.updateByPrimaryKey(aiSmsJob);
 
         //重定向
-        return "redirect:"+aiSmsJob.getSmsTemplateUrl();
+        String url = aiSmsJob.getSmsTemplateUrl();
+        if(!url.startsWith("http")){
+            url = "http://"+url;
+        }
+        return "redirect:"+url;
     }
 }

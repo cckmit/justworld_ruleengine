@@ -39,8 +39,29 @@ public interface SendSmsDAO {
             "<if test='retryTimes == null'> " +
             "STATUS=#{status}," +
             "</if>" +
-            "SEND_TIME=now(),MSG_ID=#{msgId},REMK=#{remk}" +
+            "<if test='msgId != null'> " +
+            "MSG_ID=#{msgId}," +
+            "</if>" +
+            "<if test='remk != null'> " +
+            "REMK=#{remk}," +
+            "</if>" +
+            "SEND_TIME=now()" +
             " WHERE DISPATCHER_ID=#{dispatcherId} AND LOCK_ID=#{lockId} AND STATUS='9' " +
             " </script>")
     int updateAndUnLockSendSms(SendSms cond);
+
+    @Update("<script> " +
+            "UPDATE SEND_SMS SET " +
+            "<if test='retryTimes != null'> " +
+            "STATUS=IF(RETRY_TIMES=MAX_RETRY_TIMES-1,'2',#{status})," +
+            "RETRY_TIMES=RETRY_TIMES+1," +
+            "</if>" +
+            "<if test='retryTimes == null'> " +
+            "STATUS=#{status}," +
+            "</if>" +
+            "MSG_ID=#{msgId},"+
+            "REMK=#{remk}"+
+            " WHERE DISPATCHER_ID=#{dispatcherId} AND LOCK_ID=#{lockId} AND PHONE=#{phone} " +
+            " </script>")
+    int updateSendSmsSendResult(SendSms cond);
 }

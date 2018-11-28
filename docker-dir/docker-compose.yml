@@ -1,11 +1,11 @@
 version: '3.1'
 services:
   ruleengine:
-    image: justworld_mhh/ruleengine
+    image: registry.cn-shanghai.aliyuncs.com/hua_justworld/ruleengine
     ports:
       - "18080:8080"
-#    volumes:
-#      - /usr/local/justworld_docker/data/ruleegine/log:/var/log
+    volumes:
+      - /usr/local/justworld_docker/data/ruleegine/log:/var/log
     expose:
       - "8080"
     environment:
@@ -15,14 +15,15 @@ services:
       - kafka
     restart: always
   managersystemui:
-    image: justworld_mhh/managersystemui
+    image: registry.cn-shanghai.aliyuncs.com/hua_justworld/managersystemui
     ports:
       - "18081:8081"
     expose:
       - "8081"
-
     depends_on:
       - ruleengine
+    volumes:
+      - /usr/local/justworld_docker/data/managersystemui/conf:/etc/nginx/conf.d
     restart: always
   mysql:
     image: mysql/mysql-server:5.7
@@ -49,9 +50,9 @@ services:
       - "2181"
   kafka:
     image: wurstmeister/kafka ##
-#    volumes:
-#      - /usr/local/justworld_docker/data/kafka/etc/localtime:/etc/localtime ##
-#      - /usr/local/justworld_docker/data/kafka/var/run/docker.sock:/var/run/docker.sock
+    volumes:
+      - /usr/local/justworld_docker/data/kafka/etc/localtime:/etc/localtime ##
+      - /usr/local/justworld_docker/data/kafka/var/run/docker.sock:/var/run/docker.sock
     ports:
       - "19092:9092"
     expose:

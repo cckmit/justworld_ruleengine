@@ -3,7 +3,8 @@ logging:
     console: "%t %d{yyyy-MM-dd HH:mm:ss.SSS} %-5level %class{36}.%M %L - %msg%xEx%n"
   level:
     com.justworld: trace
-  file: /var/logs/runningtrace.log
+#    org.springframework.security: trace
+  file: /var/log/runningtrace.log
 spring:
   kafka:
     bootstrap-servers: kafka:9092

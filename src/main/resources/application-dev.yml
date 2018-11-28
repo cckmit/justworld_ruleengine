@@ -3,9 +3,9 @@ logging:
     console: "%t %d{yyyy-MM-dd HH:mm:ss.SSS} %-5level %class{36}.%M %L - %msg%xEx%n"
   level:
     com.justworld: trace
-#    org.springframework.security: trace
-    org.springframework.kafka: info
-    org.apache.kafka: info
+    org.springframework.security: trace
+#    org.springframework.kafka: info
+#    org.apache.kafka: info
 
 spring:
   kafka:

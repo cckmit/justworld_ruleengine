@@ -61,8 +61,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 })
                 .and()
                 .authorizeRequests()
-                .antMatchers("/messageReceive/addAiSms"
-                        , "/click"
+                .antMatchers("/messageReceive/**"
+                        , "/click/**"
                         , "/aismsjob/weibocode")
                 .permitAll()
                 .anyRequest().authenticated()

@@ -165,7 +165,7 @@ public class AiSmsService {
                 aiSmsJob = aiSmsJobDAO.lockByPrimaryKey(aiSmsJob.getId());
                 aiSmsJob.setSmsTemplateUrl(longUrl);
                 String replaceUrl = clickStatCfg.getCfgValue() + "/" + aiSmsJob.getId();
-                aiSmsJob.setSmsShortUrl(map.get(replaceUrl));
+                aiSmsJob.setSmsShortUrl(StringUtils.substringAfter(map.get(replaceUrl),"http://"));
                 log.trace("生成的短链接为" + aiSmsJob.getSmsShortUrl());
 
                 aiSmsJob.setShortUrlStatus("2");
