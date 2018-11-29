@@ -67,4 +67,9 @@ public interface AiSmsJobDAO {
             "SET a.`status`=#{status}\n" +
             "WHERE b.DISPATCHER_ID=#{dispatcherId} AND b.LOCK_ID=#{lockId} AND b.STATUS='9'")
     int updateJobBySendSmsStatus(@Param("status")String status, @Param("dispatcherId")String dispatcherId, @Param("lockId")String lockId);
+
+    @Update("UPDATE `ai_sms_job` a JOIN send_sms b ON a.`SEND_SMS_ID`=b.`ID`\n" +
+            "SET a.`status`=#{status}\n" +
+            "WHERE b.ID=#{id}")
+    int updateSingleJobBySendSmsStatus(@Param("status")String status, @Param("id")Integer id);
 }

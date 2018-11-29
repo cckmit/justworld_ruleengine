@@ -7,12 +7,16 @@ import com.justworld.custget.ruleengine.dao.NotifyDAO;
 import com.justworld.custget.ruleengine.dao.SendSmsDAO;
 import com.justworld.custget.ruleengine.service.bo.Notify;
 import com.justworld.custget.ruleengine.service.bo.SendSms;
+import io.netty.channel.ChannelOption;
+import io.netty.handler.timeout.ReadTimeoutHandler;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -21,12 +25,16 @@ import org.springframework.util.DigestUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 import java.net.URI;
 import java.net.URLEncoder;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -39,25 +47,23 @@ public class WZLDSendSmsService {
     @Autowired
     private SendSmsDAO sendSmsDAO;
     @Autowired
-    private RestTemplate restTemplate;
-    @Autowired
     private BaseConfigDAO baseConfigDAO;
     @Autowired
     private NotifyDAO notifyDAO;
     @Autowired
     private AiSmsJobDAO aiSmsJobDAO;
 
+    private String dispatcherId = "5";
+
     @Scheduled(cron = "10 0/30 * * * *")
     @KafkaListener(topics = "send_sms_notify_5")
-    @Transactional
     public void sendSms() {
-        String dispatcherId = "5";
         //锁定任务
         String lockId = UUID.randomUUID().toString();
-        int lockCount = sendSmsDAO.lockSendSms(dispatcherId,lockId,200);
-        if(lockCount>0){
-            log.trace("本次万众联动短信渠道批量发送任务共{}条",lockCount);
-        }else{
+        int lockCount = sendSmsDAO.lockSendSms(dispatcherId, lockId, 100);
+        if (lockCount > 0) {
+            log.trace("本次万众联动短信渠道批量发送任务共{}条", lockCount);
+        } else {
             return;
         }
 
@@ -67,7 +73,6 @@ public class WZLDSendSmsService {
         try {
             List<SendSms> sendSmsList = sendSmsDAO.queryLockedSendSmsList(dispatcherId, lockId);
 
-            String content = URLEncoder.encode(sendSmsList.stream().map(s -> s.getPhone() + "\t" + s.getContent()).collect(Collectors.joining("\n")), "UTF-8");
 
             //查询短信发送的用户名密码
             String sendUrl = baseConfigDAO.selectByPrimaryKey("WANZONGLIANDONG_SMS_CONFIG", "SEND_URL").getCfgValue();
@@ -75,74 +80,114 @@ public class WZLDSendSmsService {
             String password = baseConfigDAO.selectByPrimaryKey("WANZONGLIANDONG_SMS_CONFIG", "PASSWORD").getCfgValue();
             String extno = baseConfigDAO.selectByPrimaryKey("WANZONGLIANDONG_SMS_CONFIG", "EXTNO").getCfgValue();
 
-            for (SendSms sendSms : sendSmsList) {
+            ReactorClientHttpConnector connector = new ReactorClientHttpConnector(options -> options.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 2000).compression(true).afterNettyContextInit(ctx -> {
+                ctx.addHandlerLast(new ReadTimeoutHandler(5000, TimeUnit.MILLISECONDS));
+            }));
 
-                HttpHeaders headers = new HttpHeaders();
-                headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+            WebClient webClient = WebClient.builder()
+                    .clientConnector(connector)
+                    .baseUrl(sendUrl)
+                    .build();
+
+            for (SendSms sendSms : sendSmsList) {
                 MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
                 map.add("action", "send");
                 map.add("account", account);
                 map.add("password", password);
+                map.add("extno", extno);
+
                 map.add("mobile", sendSms.getPhone());
                 map.add("content", sendSms.getContent());
-                map.add("extno", extno);
-                HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, headers);
 
-                String returnXml = restTemplate.postForObject(sendUrl, request, String.class);
-                log.info("万众联动渠道短信发送返回码{}", returnXml);
-                Map resultMap = new XmlMapper().readValue(returnXml, Map.class);
+                send(sendSms, map, webClient);
 
-                try {
-                    if (!"Success".equals(resultMap.get("returnstatus"))) {
-                        //发送错误
-                        sendSmsUpdate.setStatus(2);
-                        sendSmsUpdate.setRemk(resultMap.get("message") + "");
-                        //发通知
-                        Notify errorNotify = Notify.createDispatcherNotify(lockId, "本渠道短信发送出现故障:" + resultMap.get("returnstatus"));
-                        notifyDAO.insert(errorNotify);
-
-                        //短信任务异常
-                        aiSmsJobDAO.updateJobBySendSmsStatus("9", dispatcherId, lockId);
-                    } else {
-                        sendSmsUpdate.setStatus(1);
-                        sendSmsUpdate.setMsgId(null);
-                        sendSmsUpdate.setRemk(null);
-
-                        //任务成功
-                        aiSmsJobDAO.updateJobBySendSmsStatus("3", dispatcherId, lockId);
-
-                        //更新每条短信的msgId
-                        String resp = ((Map<String, String>) resultMap.get("resplist")).get("resp");
-                        String[] respContent = resp.split("#@#");
-                        SendSms updateSms = new SendSms();
-                        updateSms.setDispatcherId(dispatcherId);
-                        updateSms.setLockId(lockId);
-                        updateSms.setPhone(respContent[1]);
-                        if ("0".equals(respContent[2])) {
-                            //成功
-                            updateSms.setStatus(1);
-                            updateSms.setMsgId(respContent[0]);
-                        } else {
-                            updateSms.setRetryTimes(1);
-                            updateSms.setRemk(respContent[2]);
-                        }
-                        sendSmsDAO.updateSendSmsSendResult(updateSms);
-                    }
-                } catch (Exception e){
-
-                }
             }
 
-        } catch (Exception e){
-            log.error("仲达短信渠道发送异常",e);
-            sendSmsUpdate.setStatus(0);
-            sendSmsUpdate.setRetryTimes(1);
-            sendSmsUpdate.setRemk(e.getMessage());
+        } catch (Exception e) {
+            log.error("短信渠道发送异常", e);
+            //发通知
+            Notify errorNotify = Notify.createDispatcherNotify(sendSmsUpdate.getLockId(), "本渠道短信发送出现故障:" + e.getMessage());
+            notifyDAO.insert(errorNotify);
 
-        } finally {
-          //解锁
+            sendSmsUpdate.setStatus(2);
             sendSmsDAO.updateAndUnLockSendSms(sendSmsUpdate);
+
         }
+    }
+
+    @Transactional
+    public void send(SendSms sendSms, MultiValueMap<String, String> map, WebClient webClient) {
+        Mono<String> result =
+                webClient.post()
+                        .syncBody(map)
+                        .retrieve()
+                        .bodyToMono(String.class);
+
+        Mono<SendSms> sms = Mono.just(sendSms);
+        Mono.zip(sms, result).subscribe(p -> {
+                    SendSms sendSmsUpdate = p.getT1();
+                    String r = p.getT2();
+                    try {
+                        sendSmsUpdate.setRetryTimes(null);
+                        log.trace("response xml = {}", r);
+                        Map resultMap = new XmlMapper().readValue(r, Map.class);
+                        sendSmsUpdate.setSendTime(new Date());
+                        if (!"Success".equals(resultMap.get("returnstatus"))) {
+                            //发送错误,不再重试
+                            sendSmsUpdate.setStatus(2);
+                            sendSmsUpdate.setRemk(resultMap.get("message") + "");
+                        } else {
+                            sendSmsUpdate.setStatus(1);
+                            sendSmsUpdate.setMsgId(null);
+                            sendSmsUpdate.setRemk(null);
+
+                            //任务成功
+                            aiSmsJobDAO.updateSingleJobBySendSmsStatus("3", sendSmsUpdate.getId());
+
+                            //更新每条短信的msgId
+                            String resp = ((Map<String, String>) resultMap.get("resplist")).get("resp");
+                            String[] respContent = resp.split("#@#");
+                            if ("0".equals(respContent[2])) {
+                                //成功
+                                sendSmsUpdate.setStatus(1);
+                                sendSmsUpdate.setMsgId(respContent[0]);
+                                sendSmsUpdate.setRetryTimes(null);
+                            } else {
+                                //失败，不再重试
+                                sendSmsUpdate.setStatus(2);
+                                sendSmsUpdate.setStatus(0);
+                                sendSmsUpdate.setRemk(respContent[2]);
+                            }
+                        }
+                    } catch (Exception e) {
+                        log.error("万众联动短信渠道发送异常", e);
+                        //发送错误,不再重试
+                        sendSmsUpdate.setStatus(2);
+                        sendSmsUpdate.setRemk(e.getMessage());
+                    } finally {
+                        if ("2".equals(sendSmsUpdate.getStatus())) {
+                            //发通知
+                            Notify errorNotify = Notify.createDispatcherNotify(sendSmsUpdate.getLockId(), "本渠道短信发送出现故障:" + sendSmsUpdate.getRemk());
+                            notifyDAO.insert(errorNotify);
+                        }
+                        sendSmsDAO.updateSendSmsSendResult(sendSmsUpdate);
+                    }
+
+                },
+                t -> {
+                    log.error("短信渠道发送异常", t.getMessage());
+
+                    sendSms.setStatus(0);
+                    sendSms.setRetryTimes(sendSms.getRetryTimes() + 1);
+                    sendSms.setRemk(StringUtils.substring(t.getMessage(), 0, 255));
+                    //解锁
+                    sendSmsDAO.updateAndUnLockSendSms(sendSms);
+
+                    if (sendSms.getMaxRetryTimes() <= sendSms.getRetryTimes()) {
+                        //短信任务异常
+                        aiSmsJobDAO.updateSingleJobBySendSmsStatus("9", sendSms.getId());
+                    }
+                });
     }
 
 }

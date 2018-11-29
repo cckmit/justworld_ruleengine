@@ -60,8 +60,9 @@ public interface SendSmsDAO {
             "STATUS=#{status}," +
             "</if>" +
             "MSG_ID=#{msgId},"+
+            "SEND_TIME=#{sendTime},"+
             "REMK=#{remk}"+
-            " WHERE DISPATCHER_ID=#{dispatcherId} AND LOCK_ID=#{lockId} AND PHONE=#{phone} " +
+            " WHERE ID=#{id} " +
             " </script>")
     int updateSendSmsSendResult(SendSms cond);
 }
