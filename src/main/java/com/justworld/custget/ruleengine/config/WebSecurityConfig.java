@@ -2,8 +2,6 @@ package com.justworld.custget.ruleengine.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.justworld.custget.ruleengine.common.BaseResult;
-import com.justworld.custget.ruleengine.service.auth.JwtAuthenticationTokenFilter;
-import com.justworld.custget.ruleengine.service.auth.JwtTokenUtil;
 import com.justworld.custget.ruleengine.service.auth.UserLoginService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -27,10 +25,13 @@ import org.springframework.web.filter.CorsFilter;
 import java.util.HashSet;
 import java.util.Set;
 
+/*
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
-public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+*/
+public class WebSecurityConfig {
+/*
 
     @Autowired
     private UserLoginService userDetailService;
@@ -150,4 +151,5 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         return new CorsFilter(urlBasedCorsConfigurationSource);
     }
 
+*/
 }

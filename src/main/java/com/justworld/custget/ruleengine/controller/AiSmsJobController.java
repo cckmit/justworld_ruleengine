@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Mono;
 
 /**
  * AI短信控制器
@@ -30,10 +31,10 @@ public class AiSmsJobController {
     @ResponseBody
     @PostMapping(value = "/queryList/{pageNo}/{pageSize}")
     @PreAuthorize("hasAuthority('1')")
-    public BaseResult<PageInfo<AiSmsJob>> queryJobList(@PathVariable("pageNo") int pageNo, @PathVariable("pageSize")int pageSize, @RequestBody AiSmsJob cond){
+    public Mono<BaseResult<PageInfo<AiSmsJob>>> queryJobList(@PathVariable("pageNo") int pageNo, @PathVariable("pageSize")int pageSize, @RequestBody AiSmsJob cond){
 
         PageHelper.startPage(pageNo,pageSize);
-        return BaseResult.buildSuccess(new PageInfo<>(aiSmsJobDAO.queryList(cond)));
+        return Mono.just(BaseResult.buildSuccess(new PageInfo<>(aiSmsJobDAO.queryList(cond))));
     }
 
     @GetMapping(value = "weibocode")

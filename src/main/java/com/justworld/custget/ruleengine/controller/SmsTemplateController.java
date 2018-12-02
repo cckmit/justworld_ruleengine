@@ -7,8 +7,10 @@ import com.justworld.custget.ruleengine.dao.SmsTemplateDAO;
 import com.justworld.custget.ruleengine.service.bo.SmsTemplate;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 
@@ -27,12 +29,13 @@ public class SmsTemplateController {
 
     @ResponseBody
     @PostMapping(value = "/queryList/{pageNo}/{pageSize}")
-    public BaseResult<PageInfo<SmsTemplate>> queryList(@PathVariable("pageNo") int pageNo, @PathVariable("pageSize")int pageSize, @RequestBody SmsTemplate cond) {
+    @PreAuthorize("hasAuthority('2')")
+    public Mono<BaseResult<PageInfo<SmsTemplate>>> queryList(@PathVariable("pageNo") int pageNo, @PathVariable("pageSize")int pageSize, @RequestBody SmsTemplate cond) {
 
-        return BaseResult.build((t) -> {
+        return Mono.just(BaseResult.build((t) -> {
             PageHelper.startPage(pageNo,pageSize);
             return new PageInfo<>(smsTemplateDAO.queryList(t));
-        }, cond);
+        }, cond));
     }
 
     @PostMapping(value = "/update")

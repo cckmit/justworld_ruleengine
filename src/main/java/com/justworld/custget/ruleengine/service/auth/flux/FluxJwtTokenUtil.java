@@ -1,19 +1,22 @@
-package com.justworld.custget.ruleengine.service.auth;
+package com.justworld.custget.ruleengine.service.auth.flux;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
-import javax.servlet.http.HttpServletRequest;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 @Service
-public class JwtTokenUtil {
-    public static final String TOKEN_HEADER = "Authorization";
+public class FluxJwtTokenUtil {
     public static final String TOKEN_PREFIX = "Bearer ";
 
     @Value("${jwt_token.secret}")
@@ -64,10 +67,10 @@ public class JwtTokenUtil {
                 .getBody();
     }
 
-    public String getToken(HttpServletRequest request){
-        String authHeader = request.getHeader(JwtTokenUtil.TOKEN_HEADER);
-        if (authHeader != null && authHeader.startsWith(JwtTokenUtil.TOKEN_PREFIX)) {
-            return authHeader.substring(JwtTokenUtil.TOKEN_PREFIX.length());
+    public String getToken(ServerHttpRequest request){
+        String authHeader = request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
+        if (authHeader != null && authHeader.startsWith(FluxJwtTokenUtil.TOKEN_PREFIX)) {
+            return authHeader.substring(FluxJwtTokenUtil.TOKEN_PREFIX.length());
         }
         return "";
     }
