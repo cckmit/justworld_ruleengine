@@ -3,7 +3,10 @@ logging:
     console: "%t %d{yyyy-MM-dd HH:mm:ss.SSS} %-5level %class{36}.%M %L - %msg%xEx%n"
   level:
     com.justworld: trace
-    org.springframework.security: trace
+    root: warn
+    org.apache.ibatis.logging: info
+    com.justworld.custget.ruleengine.dao: info
+#    org.springframework.security: trace
 #    org.springframework.kafka: info
 #    org.apache.kafka: info
 
@@ -18,7 +21,7 @@ spring:
       #基本属性
       url: jdbc:mysql://192.168.40.128:3306/custget?useUnicode=true&characterEncoding=UTF-8&allowMultiQueries=true
       username: root
-      password: abc123
+      password:
       #配置初始化大小/最小/最大
       initial-size: 1
       min-idle: 1

@@ -2,20 +2,27 @@ package com.justworld.custget.ruleengine.service.shorturl;
 
 import com.justworld.custget.ruleengine.dao.BaseConfigDAO;
 import com.justworld.custget.ruleengine.service.bo.BaseConfig;
+import io.netty.channel.ChannelOption;
+import io.netty.handler.timeout.ReadTimeoutHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 /**
  * 新浪短链接生成器
@@ -28,33 +35,39 @@ public class SinaShortUrlGenerator implements IShortUrlGenerator {
     private String serverUrl;
     @Value("${short-url-server.sina.auth_token_url}")
     private String sinaTokenUrl;
-
     @Autowired
     private RestTemplate restTemplate;
+
     @Autowired
     private BaseConfigDAO baseConfigDAO;
 
     @Override
-    public void convertShortUrl(Map<String, String> urlMap) {
+    public void convertShortUrl(Map<String, String> urlMap, Consumer<Map<String,String>> consumer) {
 
-        String token = baseConfigDAO.selectByPrimaryKey("short-url-server.sina","token").getCfgValue();
+        String token = baseConfigDAO.selectByPrimaryKey("short-url-server.sina", "token").getCfgValue();
 
         //发送请求
-        StringBuilder url = new StringBuilder(serverUrl + "?access_token={1}").append(urlMap.keySet().stream().reduce("",(k1, k2) -> k1.concat("&url_long=" + k2)));
-        try {
-            Map result = restTemplate.getForObject(url.toString(), Map.class, token);
+        StringBuilder url = new StringBuilder(serverUrl + "?access_token=").append(token).append(urlMap.keySet().stream().reduce("", (k1, k2) -> k1.concat("&url_long=" + k2)));
 
+        ReactorClientHttpConnector connector = new ReactorClientHttpConnector(options -> options.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 2000).compression(true).afterNettyContextInit(ctx -> {
+            ctx.addHandlerLast(new ReadTimeoutHandler(5000, TimeUnit.MILLISECONDS));
+        }));
+
+        WebClient webClient = WebClient.builder()
+                .clientConnector(connector)
+                .baseUrl(url.toString())
+                .build();
+
+        Mono<Map> resultMapMono = webClient.get().retrieve().bodyToMono(Map.class);
+
+        resultMapMono.subscribe(result -> {
             log.debug("short urls = {}", result);
             for (Map<String, ?> urls : (List<Map<String, ?>>) result.get("urls")) {
                 urlMap.put(urls.get("url_long") + "", urls.get("url_short") + "");
             }
-        } catch (HttpClientErrorException e){
-            if(e.getStatusCode().value()==403){
-                log.error("授权已过期");
-            } else {
-                throw e;
-            }
-        }
+            consumer.accept(urlMap);
+
+        });
     }
 
     /**

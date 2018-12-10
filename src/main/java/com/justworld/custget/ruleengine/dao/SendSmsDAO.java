@@ -11,12 +11,12 @@ public interface SendSmsDAO {
     @Insert("insert into send_sms (PHONE, CONTENT, CREATE_TIME, \n" +
             "      SEND_TIME, `STATUS`, DONE_TIME, \n" +
             "      MSG_ID, SMS_TYPE, DISPATCHER_ID, \n" +
-            "      RETRY_TIMES, MAX_RETRY_TIMES, REMK\n" +
+            "      RETRY_TIMES, MAX_RETRY_TIMES, REMK, SEND_RESULT\n" +
             "      )\n" +
             "SELECT #{phone}, #{content}, now(), \n" +
             "      #{sendTime}, #{status}, #{doneTime}, \n" +
             "      #{msgId}, #{smsType}, #{dispatcherId}, \n" +
-            "      0, MAX_RETRY_TIMES, #{remk}\n" +
+            "      0, MAX_RETRY_TIMES, #{remk},'0'\n" +
             "      FROM SMS_TYPE_TIME WHERE TYPE_KEY=#{smsType}")
     @Options(useGeneratedKeys=true, keyColumn="id")
     int insert(SendSms record);
@@ -29,6 +29,17 @@ public interface SendSmsDAO {
             "AND sms_type IN (SELECT type_key FROM sms_type_time WHERE DATE_FORMAT(NOW(),'%H%i%s')>=START_TIME AND DATE_FORMAT(NOW(),'%H%i%s')<=END_TIME) " +
             "limit #{limit}")
     int lockSendSms(@Param("dispatcherId") String dispatcherId, @Param("lockId")String lockId, @Param("limit")int limit);
+
+    @Update("<script> " +
+            "UPDATE SEND_SMS SET STATUS='9',LOCK_ID=#{lockId},LOCK_TIME=now() " +
+            "WHERE DISPATCHER_ID=#{dispatcherId} AND STATUS IN ('0','9') AND (STATUS='0' OR (STATUS='9' AND LOCK_TIME <![CDATA[  < ]]> date_add(now(),interval -30 minute))) " +
+            "AND sms_type IN (SELECT type_key FROM sms_type_time WHERE DATE_FORMAT(NOW(),'%H%i%s') <![CDATA[ >= ]]> START_TIME AND DATE_FORMAT(NOW(),'%H%i%s') <![CDATA[ <= ]]> END_TIME) " +
+            "AND ID IN " +
+            "<foreach item='sendSms' index='index' collection='sendSmsList' open='(' separator=',' close=')'>" +
+            "#{sendSms.id}" +
+            "</foreach> " +
+            " </script>")
+    int lockSendSmsByIds(@Param("dispatcherId") String dispatcherId, @Param("lockId")String lockId, @Param("sendSmsList")List<SendSms> sendSmsList);
 
     @Update("<script> " +
             "UPDATE SEND_SMS SET " +
@@ -61,8 +72,14 @@ public interface SendSmsDAO {
             "</if>" +
             "MSG_ID=#{msgId},"+
             "SEND_TIME=#{sendTime},"+
-            "REMK=#{remk}"+
+            "REMK=#{remk},COST=#{cost}"+
             " WHERE ID=#{id} " +
             " </script>")
     int updateSendSmsSendResult(SendSms cond);
+
+    @Select("SELECT COUNT(1) FROM SEND_SMS WHERE DISPATCHER_ID=#{dispatcherId} AND STATUS='1' AND SEND_TIME>date_add(now(),interval -30 minute) AND SEND_RESULT='0'")
+    int countSmsForReport(String dispatcherId);
+
+    @Update("UPDATE SEND_SMS SET SEND_RESULT=#{sendResult},REMK=#{remk},DONE_TIME=#{doneTime} WHERE MSG_ID=#{msgId} AND PHONE=#{phone}")
+    int updateSendResult(SendSms cond);
 }

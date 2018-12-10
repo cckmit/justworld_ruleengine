@@ -4,27 +4,27 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
- * phone_identify
+ * phone_segment
  * @author 
  */
-public class PhoneIdentify implements Serializable {
+public class PhoneSegment implements Serializable {
     /**
-     * 手机号
+     * 号段
      */
-    private String phone;
+    private String segment;
 
     /**
-     * 所属省份
+     * 归属省
      */
     private String province;
 
     /**
-     * 所属城市
+     * 归属市
      */
     private String city;
 
     /**
-     * 所以区域
+     * 归属区域
      */
     private String area;
 
@@ -34,18 +34,28 @@ public class PhoneIdentify implements Serializable {
     private String telOperator;
 
     /**
-     * 更新时间
+     * 识别方式
      */
-    private Date updateTime;
+    private String identifyType;
+
+    /**
+     * 识别时间
+     */
+    private Date identifyTime;
+
+    /**
+     * 状态：1=有效，2=需要重新识别
+     */
+    private String status;
 
     private static final long serialVersionUID = 1L;
 
-    public String getPhone() {
-        return phone;
+    public String getSegment() {
+        return segment;
     }
 
-    public void setPhone(String phone) {
-        this.phone = phone;
+    public void setSegment(String segment) {
+        this.segment = segment;
     }
 
     public String getProvince() {
@@ -80,11 +90,27 @@ public class PhoneIdentify implements Serializable {
         this.telOperator = telOperator;
     }
 
-    public Date getUpdateTime() {
-        return updateTime;
+    public String getIdentifyType() {
+        return identifyType;
     }
 
-    public void setUpdateTime(Date updateTime) {
-        this.updateTime = updateTime;
+    public void setIdentifyType(String identifyType) {
+        this.identifyType = identifyType;
+    }
+
+    public Date getIdentifyTime() {
+        return identifyTime;
+    }
+
+    public void setIdentifyTime(Date identifyTime) {
+        this.identifyTime = identifyTime;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 }

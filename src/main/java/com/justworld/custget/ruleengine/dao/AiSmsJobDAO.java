@@ -13,21 +13,28 @@ import java.util.List;
 @Repository
 public interface AiSmsJobDAO {
 
-    @Insert("INSERT INTO ai_sms_job (\n" +
+    @Insert("<script>" +
+            "INSERT IGNORE INTO ai_sms_job (\n" +
             "  AI_SEQ,PHONE, AI_USERNAME, TAG, PHONE_STATUS, SHORT_URL_STATUS, STATUS, RULE_ID, CREATE_TIME, CLICK_COUNT, CLICK_TIME, SMS_TEMPLATE_ID, SMS_TEMPLATE_URL, SMS_SHORT_URL\n" +
             ") \n" +
             "VALUES\n" +
+            "<foreach item='aismsjob' index='index' collection='list' separator=',\n'>" +
             "  (\n" +
-            "    #{aiSeq}, #{phone}, #{aiUsername}, #{tag},#{phoneStatus},#{shortUrlStatus},#{status}, #{ruleId}, #{createTime},#{clickCount}, #{clickTime}, #{smsTemplateId}, #{smsTemplateUrl}, #{smsShortUrl}" +
-            "  )")
-    @Options(useGeneratedKeys=true, keyColumn="id")
-    int insert(AiSmsJob aiSmsJob);
+            "    #{aismsjob.aiSeq}, #{aismsjob.phone}, #{aismsjob.aiUsername}, #{aismsjob.tag},#{aismsjob.phoneStatus},#{aismsjob.shortUrlStatus},#{aismsjob.status}, #{aismsjob.ruleId}, #{aismsjob.createTime},#{aismsjob.clickCount}, #{aismsjob.clickTime}, #{aismsjob.smsTemplateId}, #{aismsjob.smsTemplateUrl}, #{aismsjob.smsShortUrl}" +
+            "  )\n" +
+            "</foreach>" +
+            "</script>")
+    @Options(useGeneratedKeys=true)
+    int insert(List<AiSmsJob> aiSmsJobList);
 
     @Select("SELECT A.*,P.PROVINCE,P.CITY,P.TEL_OPERATOR FROM AI_SMS_JOB A LEFT JOIN PHONE_IDENTIFY P ON A.PHONE=P.PHONE  WHERE A.ID=#{id}")
     AiSmsJob selectByPrimaryKey(@Param("id") Integer id);
 
-    @Select("SELECT * FROM AI_SMS_JOB WHERE AI_SEQ=#{aiSeq}")
-    AiSmsJob selectByAiSeq(@Param("aiSeq") String aiSeq);
+    @Update("UPDATE AI_SMS_JOB SET PHONE_STATUS=#{phoneStatus} WHERE ID=#{id}")
+    int updatePhoneStatus(AiSmsJob record);
+
+    @Update("UPDATE AI_SMS_JOB SET SHORT_URL_STATUS=#{shortUrlStatus},SMS_TEMPLATE_URL=#{smsTemplateUrl},SMS_SHORT_URL=#{smsShortUrl} WHERE ID=#{id}")
+    int updateShortUrlStatus(AiSmsJob record);
 
     @Select("SELECT A.*,P.PROVINCE,P.CITY,P.TEL_OPERATOR FROM AI_SMS_JOB A LEFT JOIN PHONE_IDENTIFY P ON A.PHONE=P.PHONE  WHERE A.ID=#{id} for update")
     AiSmsJob lockByPrimaryKey(@Param("id") Integer id);

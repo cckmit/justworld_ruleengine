@@ -30,11 +30,10 @@ public class AiSmsJobController {
 
     @ResponseBody
     @PostMapping(value = "/queryList/{pageNo}/{pageSize}")
-    @PreAuthorize("hasAuthority('1')")
-    public Mono<BaseResult<PageInfo<AiSmsJob>>> queryJobList(@PathVariable("pageNo") int pageNo, @PathVariable("pageSize")int pageSize, @RequestBody AiSmsJob cond){
+    public BaseResult<PageInfo<AiSmsJob>> queryJobList(@PathVariable("pageNo") int pageNo, @PathVariable("pageSize")int pageSize, @RequestBody AiSmsJob cond){
 
         PageHelper.startPage(pageNo,pageSize);
-        return Mono.just(BaseResult.buildSuccess(new PageInfo<>(aiSmsJobDAO.queryList(cond))));
+        return BaseResult.buildSuccess(new PageInfo<>(aiSmsJobDAO.queryList(cond)));
     }
 
     @GetMapping(value = "weibocode")

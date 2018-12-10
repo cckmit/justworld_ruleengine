@@ -38,8 +38,8 @@ public class ZDSendSmsService {
     @Autowired
     private AiSmsJobDAO aiSmsJobDAO;
 
-    @Scheduled(cron = "10 0/30 * * * *")
-    @KafkaListener(topics = "send_sms_notify_4")
+//    @Scheduled(cron = "10 0/30 * * * *")
+//    @KafkaListener(topics = "send_sms_notify_4")
     private void sendJuDaSms() {
         String dispatcherId = "4";
         //锁定任务
@@ -74,7 +74,7 @@ public class ZDSendSmsService {
             map.add("mb", sendSms.getPhone());
             map.add("tm", timestamp);
             map.add("ms", sendSms.getContent());
-            map.add("ex", "01");
+            map.add("ex", "");
             map.add("dm", "");
             HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, headers);
 

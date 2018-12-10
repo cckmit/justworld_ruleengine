@@ -5,6 +5,7 @@ import com.justworld.custget.ruleengine.dao.AiSmsJobDAO;
 import com.justworld.custget.ruleengine.dao.BaseConfigDAO;
 import com.justworld.custget.ruleengine.dao.NotifyDAO;
 import com.justworld.custget.ruleengine.dao.SendSmsDAO;
+import com.justworld.custget.ruleengine.service.bo.AiSmsJob;
 import com.justworld.custget.ruleengine.service.bo.Notify;
 import com.justworld.custget.ruleengine.service.bo.SendSms;
 import io.netty.channel.ChannelOption;
@@ -55,25 +56,44 @@ public class WZLDSendSmsService {
 
     private String dispatcherId = "5";
 
-    @Scheduled(cron = "10 0/30 * * * *")
-    @KafkaListener(topics = "send_sms_notify_5")
-    public void sendSms() {
+//    @Scheduled(cron = "10 0/30 * * * *")
+    public void sendDbSms() {
+        while(true) {
+            //锁定任务
+            String lockId = UUID.randomUUID().toString();
+            int lockCount = sendSmsDAO.lockSendSms(dispatcherId, lockId, 100);
+            if (lockCount > 0) {
+                log.trace("本次万众联动短信渠道批量发送任务共{}条", lockCount);
+                sendSms(lockId);
+            } else {
+                return;
+            }
+        }
+
+    }
+
+//    @KafkaListener(topics = "send_sms_notify_5", containerFactory = "kafkaListenerBatchConsumerFactory")
+    public void sendQueueSms(List<SendSms> sendSmsList) {
         //锁定任务
         String lockId = UUID.randomUUID().toString();
-        int lockCount = sendSmsDAO.lockSendSms(dispatcherId, lockId, 100);
+        int lockCount = sendSmsDAO.lockSendSmsByIds(dispatcherId, lockId, sendSmsList);
         if (lockCount > 0) {
-            log.trace("本次万众联动短信渠道批量发送任务共{}条", lockCount);
+            log.trace("本次万众联动短信渠道批量发送队列任务共{}条", lockCount);
         } else {
             return;
         }
+        sendSms(lockId);
+
+    }
+
+    public void sendSms(String lockId) {
 
         SendSms sendSmsUpdate = new SendSms();
         sendSmsUpdate.setDispatcherId(dispatcherId);
         sendSmsUpdate.setLockId(lockId);
+
         try {
             List<SendSms> sendSmsList = sendSmsDAO.queryLockedSendSmsList(dispatcherId, lockId);
-
-
             //查询短信发送的用户名密码
             String sendUrl = baseConfigDAO.selectByPrimaryKey("WANZONGLIANDONG_SMS_CONFIG", "SEND_URL").getCfgValue();
             String account = baseConfigDAO.selectByPrimaryKey("WANZONGLIANDONG_SMS_CONFIG", "ACCOUNT").getCfgValue();
@@ -102,7 +122,6 @@ public class WZLDSendSmsService {
                 send(sendSms, map, webClient);
 
             }
-
         } catch (Exception e) {
             log.error("短信渠道发送异常", e);
             //发通知
@@ -175,7 +194,7 @@ public class WZLDSendSmsService {
 
                 },
                 t -> {
-                    log.error("短信渠道发送异常", t.getMessage());
+                    log.error("短信渠道发送异常", t);
 
                     sendSms.setStatus(0);
                     sendSms.setRetryTimes(sendSms.getRetryTimes() + 1);

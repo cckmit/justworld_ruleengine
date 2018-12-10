@@ -10,8 +10,10 @@ import com.justworld.custget.ruleengine.exceptions.RtcdExcception;
 import com.justworld.custget.ruleengine.service.bo.AiSmsJob;
 import com.justworld.custget.ruleengine.service.bo.SmsJobUser;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.clients.producer.RecordMetadata;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.DigestUtils;
 import org.springframework.util.concurrent.ListenableFuture;
@@ -32,31 +34,23 @@ public class MessageReceiverController {
     @Autowired
     private KafkaTemplate kafkaTemplate;
     @Autowired
-    private ObjectMapper objectMapper;
-    @Autowired
     private SmsJobUserDAO smsJobUserDAO;
 
     @ResponseBody
     @PostMapping(value = "/addAiSms")
-    public BaseResult addAiSms(@RequestBody BaseRequest<AiSmsJob> request){
+    public BaseResult addAiSms(@RequestBody BaseRequest<AiSmsJob> request) {
 
-        return BaseResult.build(req->{
+        return BaseResult.build(req -> {
             RequestHead reqHead = req.getHead();
             //校验用户密码
-            SmsJobUser user = smsJobUserDAO.selectByUsername("1",reqHead.getUsername());
-            if(!user.getPassword().equals(reqHead.getPassword())){
-                throw new RtcdExcception("0001","用户密码不正确");
+            SmsJobUser user = smsJobUserDAO.selectByUsername("1", reqHead.getUsername());
+            if (!user.getPassword().equals(reqHead.getPassword())) {
+                throw new RtcdExcception("0001", "用户密码不正确");
             }
 
-            String message = null;
-            try {
-                message = objectMapper.writeValueAsString(req.getBody());
-                ListenableFuture future = kafkaTemplate.send("ai_message", message);
-                future.addCallback(o -> log.trace("send-消息发送成功：" + o), throwable -> log.trace("消息发送失败：" + throwable.getMessage()));
-            } catch (JsonProcessingException e) {
-                throw new RtcdExcception("9999","数据对象转换字符串失败");
-            }
+            ListenableFuture<SendResult<String, String>> future = kafkaTemplate.send("ai_message", req.getBody());
+            future.addCallback(o -> log.trace("message sent to " + o.getRecordMetadata().topic() + ", partition " + o.getRecordMetadata().partition() + ", offset " + o.getRecordMetadata().offset()), throwable -> log.trace("消息发送失败：" + throwable.getMessage()));
             return null;
-        },request);
+        }, request);
     }
 }

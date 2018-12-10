@@ -29,13 +29,12 @@ public class SmsTemplateController {
 
     @ResponseBody
     @PostMapping(value = "/queryList/{pageNo}/{pageSize}")
-    @PreAuthorize("hasAuthority('2')")
-    public Mono<BaseResult<PageInfo<SmsTemplate>>> queryList(@PathVariable("pageNo") int pageNo, @PathVariable("pageSize")int pageSize, @RequestBody SmsTemplate cond) {
+    public BaseResult<PageInfo<SmsTemplate>> queryList(@PathVariable("pageNo") int pageNo, @PathVariable("pageSize")int pageSize, @RequestBody SmsTemplate cond) {
 
-        return Mono.just(BaseResult.build((t) -> {
+        return BaseResult.build((t) -> {
             PageHelper.startPage(pageNo,pageSize);
             return new PageInfo<>(smsTemplateDAO.queryList(t));
-        }, cond));
+        }, cond);
     }
 
     @PostMapping(value = "/update")

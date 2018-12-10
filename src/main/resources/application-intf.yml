@@ -8,7 +8,7 @@ short-url-server:
 #手机号码识别接口
 phone-identify-server:
   baidu:
-    url: http://mobsec-dianhua.baidu.com/dianhua_api/open/location?tel={1}
+    url: http://mobsec-dianhua.baidu.com/dianhua_api/open/location?tel=
 
   juhe:
     key: 123456

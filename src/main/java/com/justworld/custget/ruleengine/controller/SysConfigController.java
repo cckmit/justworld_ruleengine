@@ -24,13 +24,13 @@ public class SysConfigController {
 
     @ResponseBody
     @PostMapping("/queryList")
-    public Mono<BaseResult<List<BaseConfig>>> queryList(String cfgGroup){
+    public BaseResult<List<BaseConfig>> queryList(String cfgGroup){
         try {
             List<BaseConfig> sinaConfigList = baseConfigDAO.queryGroup(cfgGroup);
-            return Mono.just(BaseResult.buildSuccess(sinaConfigList));
+            return BaseResult.buildSuccess(sinaConfigList);
         } catch (Exception e){
             log.error("出现错误:",e);
-            return Mono.just(BaseResult.buildFail("9999",e.getMessage()));
+            return BaseResult.buildFail("9999",e.getMessage());
         }
 
     }

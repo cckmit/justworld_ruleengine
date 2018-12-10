@@ -25,7 +25,7 @@ import java.util.UUID;
 
 @Slf4j
 @Service
-public class SendSmsService {
+public class JDSendSmsService {
 
     @Autowired
     private SendSmsDAO sendSmsDAO;
@@ -41,8 +41,8 @@ public class SendSmsService {
     /**
      * 用聚达渠道发送数据库中的待发短信
      */
-    @Scheduled(cron = "0 0/30 * * * *")
-    @KafkaListener(topics = "send_sms_notify_1")
+//    @Scheduled(cron = "0 0/30 * * * *")
+//    @KafkaListener(topics = "send_sms_notify_1")
     public void sendJuDaSmsYd(){
         String dispatcherId = "1";
         String username = baseConfigDAO.selectByPrimaryKey("JUDA_SMS_CONFIG", "USERNAME_YD").getCfgValue();
@@ -55,8 +55,8 @@ public class SendSmsService {
     /**
      * 用聚达电信渠道发送数据库中的待发短信
      */
-    @Scheduled(cron = "10 0/30 * * * *")
-    @KafkaListener(topics = "send_sms_notify_3")
+//    @Scheduled(cron = "10 0/30 * * * *")
+//    @KafkaListener(topics = "send_sms_notify_3")
     public void sendJuDaSmsDX(){
         String dispatcherId = "3";
         String username = baseConfigDAO.selectByPrimaryKey("JUDA_SMS_CONFIG", "USERNAME_DX").getCfgValue();
@@ -69,8 +69,8 @@ public class SendSmsService {
     /**
      * 用聚达联通渠道发送数据库中的待发短信
      */
-    @Scheduled(cron = "20 0/30 * * * *")
-    @KafkaListener(topics = "send_sms_notify_2")
+//    @Scheduled(cron = "20 0/30 * * * *")
+//    @KafkaListener(topics = "send_sms_notify_2")
     public void sendJuDaSmsLT(){
         String dispatcherId = "2";
         String username = baseConfigDAO.selectByPrimaryKey("JUDA_SMS_CONFIG", "USERNAME_LT").getCfgValue();

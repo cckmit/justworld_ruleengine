@@ -80,6 +80,10 @@ public class SendSms implements Serializable {
      */
     private String remk;
 
+    private String sendResult;
+
+    private Integer cost;
+
     private static final long serialVersionUID = 1L;
     public SendSms() {
     }
