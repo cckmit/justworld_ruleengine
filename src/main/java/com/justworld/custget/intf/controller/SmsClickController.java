@@ -24,22 +24,25 @@ public class SmsClickController {
     private AiSmsJobDAO aiSmsJobDAO;
 
     @GetMapping(value = "/aismsjob/{aiSmsJobId}")
-    public String clickAiSmsJob(@PathVariable String aiSmsJobId){
+    public Mono<String> clickAiSmsJob(@PathVariable String aiSmsJobId){
         log.debug("click aismsjob.id={}",aiSmsJobId);
-        AiSmsJob aiSmsJob = aiSmsJobDAO.lockByPrimaryKey(Integer.valueOf(aiSmsJobId));
-        if(aiSmsJob.getShortUrlStatus().equals("1")){
-            log.debug("短链接未生成，不记录点击数");
-            return null;
-        }
-        aiSmsJob.setClickCount(aiSmsJob.getClickCount()+1);
-        aiSmsJob.setClickTime(new Timestamp(System.currentTimeMillis()));
-        aiSmsJobDAO.updateByPrimaryKey(aiSmsJob);
+        return Mono.just(aiSmsJobId).flatMap(id -> {
+            AiSmsJob aiSmsJob = aiSmsJobDAO.lockByPrimaryKey(Integer.valueOf(id));
+            if(aiSmsJob.getShortUrlStatus().equals("1")){
+                log.debug("短链接未生成，不记录点击数");
+                return null;
+            }
+            aiSmsJob.setClickCount(aiSmsJob.getClickCount()+1);
+            aiSmsJob.setClickTime(new Timestamp(System.currentTimeMillis()));
+            aiSmsJobDAO.updateByPrimaryKey(aiSmsJob);
 
-        //重定向
-        String url = aiSmsJob.getSmsTemplateUrl();
-        if(!url.startsWith("http")){
-            url = "http://"+url;
-        }
-        return "redirect:"+url;
+            //重定向
+            String url = aiSmsJob.getSmsTemplateUrl();
+            if(!url.startsWith("http")){
+                url = "http://"+url;
+            }
+            return Mono.just("redirect:"+url);
+        });
+
     }
 }

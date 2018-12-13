@@ -11,14 +11,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Base64Utils;
 import org.springframework.util.DigestUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 import java.util.UUID;
@@ -29,8 +26,6 @@ public class JDSendSmsService {
 
     @Autowired
     private SendSmsDAO sendSmsDAO;
-    @Autowired
-    private RestTemplate restTemplate;
     @Autowired
     private BaseConfigDAO baseConfigDAO;
     @Autowired
@@ -126,7 +121,7 @@ public class JDSendSmsService {
             map.add("encodeType", encodeType);
             HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, headers);
 
-            String cid = restTemplate.postForObject(sendUrl, request, String.class);
+            String cid = null;//restTemplate.postForObject(sendUrl, request, String.class);
             log.info("聚达渠道短信发送返回码{}", cid);
 
             if(cid.length()<=3){

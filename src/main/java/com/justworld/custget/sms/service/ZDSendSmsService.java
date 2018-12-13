@@ -12,8 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 import org.springframework.util.LinkedMultiValueMap;
@@ -29,7 +27,6 @@ public class ZDSendSmsService {
 
     @Autowired
     private SendSmsDAO sendSmsDAO;
-    @Autowired
     private RestTemplate restTemplate;
     @Autowired
     private BaseConfigDAO baseConfigDAO;

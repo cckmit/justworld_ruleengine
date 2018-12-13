@@ -1,37 +1,17 @@
 package com.justworld.custget.sms.service;
 
-import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.justworld.custget.ruleengine.dao.AiSmsJobDAO;
 import com.justworld.custget.ruleengine.dao.BaseConfigDAO;
 import com.justworld.custget.ruleengine.dao.NotifyDAO;
 import com.justworld.custget.ruleengine.dao.SendSmsDAO;
 import com.justworld.custget.ruleengine.service.bo.Notify;
 import com.justworld.custget.ruleengine.service.bo.SendSms;
-import io.netty.channel.ChannelOption;
-import io.netty.handler.timeout.ReadTimeoutHandler;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.time.DateUtils;
-import org.dom4j.Document;
-import org.dom4j.DocumentHelper;
-import org.dom4j.Element;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.client.reactive.ReactorClientHttpConnector;
-import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
-import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
-import java.io.IOException;
-import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
 /**
  * 万众联动

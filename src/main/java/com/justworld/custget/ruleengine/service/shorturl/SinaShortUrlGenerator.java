@@ -35,8 +35,6 @@ public class SinaShortUrlGenerator implements IShortUrlGenerator {
     private String serverUrl;
     @Value("${short-url-server.sina.auth_token_url}")
     private String sinaTokenUrl;
-    @Autowired
-    private RestTemplate restTemplate;
 
     @Autowired
     private BaseConfigDAO baseConfigDAO;
@@ -91,7 +89,18 @@ public class SinaShortUrlGenerator implements IShortUrlGenerator {
         map.add("code", code);
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, headers);
 
-        Map result = restTemplate.postForObject(sinaTokenUrl, request,Map.class);
+        ReactorClientHttpConnector connector = new ReactorClientHttpConnector(options -> options.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 2000).compression(true).afterNettyContextInit(ctx -> {
+            ctx.addHandlerLast(new ReadTimeoutHandler(5000, TimeUnit.MILLISECONDS));
+        }));
+
+        WebClient webClient = WebClient.builder()
+                .clientConnector(connector)
+                .baseUrl(sinaTokenUrl)
+                .build();
+
+        Mono<Map> resultMapMono = webClient.post().syncBody(map).retrieve().bodyToMono(Map.class);
+
+        Map result = resultMapMono.block();
 
         log.trace("result={}",result);
         BaseConfig sinaTokenCfg = baseConfigDAO.selectByPrimaryKey("short-url-server.sina","token");
