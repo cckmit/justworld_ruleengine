@@ -206,13 +206,17 @@ public class AiSmsService {
             log.info("该任务已发送短信");
             return;
         }
+
+        //决定使用的渠道
+        SmsDispatcher dispatcher = dispatcherSelector.select(aiSmsJob);
+        if(dispatcher == null){
+            return;
+        }
+
         SmsTemplate smsTemplate = smsTemplateDAO.selectByPrimaryKey(aiSmsJob.getSmsTemplateId());
 
         //组装短信内容
         String smsContent = StringUtils.replace(smsTemplate.getContent(), "<<" + aiSmsJob.getSmsTemplateUrl() + ">>", aiSmsJob.getSmsShortUrl());
-
-        //决定使用的渠道
-        SmsDispatcher dispatcher = dispatcherSelector.select(aiSmsJob);
         SendSms sms = new SendSms(aiSmsJob.getPhone(), smsContent, dispatcher.getDispatcherKey());
         sendSmsDAO.insert(sms);
 

@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import reactor.core.publisher.Mono;
 
@@ -22,9 +23,10 @@ public class SmsClickController {
     @Autowired
     private AiSmsJobDAO aiSmsJobDAO;
 
-    @GetMapping(value = "/aismsjob/{id}")
-    public String clickAiSmsJob(AiSmsJob aiSmsJob){
-        aiSmsJob = aiSmsJobDAO.lockByPrimaryKey(aiSmsJob.getId());
+    @GetMapping(value = "/aismsjob/{aiSmsJobId}")
+    public String clickAiSmsJob(@PathVariable String aiSmsJobId){
+        log.debug("click aismsjob.id={}",aiSmsJobId);
+        AiSmsJob aiSmsJob = aiSmsJobDAO.lockByPrimaryKey(Integer.valueOf(aiSmsJobId));
         if(aiSmsJob.getShortUrlStatus().equals("1")){
             log.debug("短链接未生成，不记录点击数");
             return null;

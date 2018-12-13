@@ -17,6 +17,7 @@ import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -24,6 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -65,7 +67,6 @@ public class ZDSendSmsServiceFlux extends BaseSendSmsService {
         String account = baseConfigDAO.selectByPrimaryKey("ZHONGDA_SMS_CONFIG", "ACCOUNT").getCfgValue();
         String password = baseConfigDAO.selectByPrimaryKey("ZHONGDA_SMS_CONFIG", "PASSWORD").getCfgValue();
         String timestamp = DateFormatUtils.format(System.currentTimeMillis(),"yyyyMMddHHmmss");
-        String sign = DigestUtils.md5DigestAsHex((password+timestamp).getBytes());
 
         ReactorClientHttpConnector connector = new ReactorClientHttpConnector(options -> options.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 2000).compression(true).afterNettyContextInit(ctx -> {
             ctx.addHandlerLast(new ReadTimeoutHandler(5000, TimeUnit.MILLISECONDS));
@@ -79,21 +80,16 @@ public class ZDSendSmsServiceFlux extends BaseSendSmsService {
         long start = System.currentTimeMillis();
         Flux<SendSms> sendSmsOverFlux = sendSmsFlux.flatMap(sendSms -> {
             log.debug("本次发送短信ID[{}]", sendSms.getId());
-            MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
-            map.add("ua", account);
-            map.add("pw", sign);
-            map.add("mb", sendSms.getPhone());
-            map.add("tm", timestamp);
+            String sign = null;
             try {
-                map.add("ms", URLEncoder.encode(sendSms.getContent(),"utf-8"));
+                sign =  DigestUtils.md5DigestAsHex((password+timestamp).getBytes("UTF-8"));
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             }
-            map.add("ex", "");
-            map.add("dm", "");
 
-            Mono<String> r = webClient.post()
-                    .syncBody(map)
+            Mono<String> r = webClient.get()
+                    .uri("?uid={account}&pw={password}&mb={phone}&ms={content}&tm={timestamp}&ex={ex}",
+                            account,sign,sendSms.getPhone(),sendSms.getContent(),timestamp,"")
                     .retrieve()
                     .bodyToMono(String.class);
 
@@ -130,7 +126,7 @@ public class ZDSendSmsServiceFlux extends BaseSendSmsService {
                         sms.setStatus(2);
                         sms.setMsgId(null);
                         sms.setRetryTimes(null);
-                        sms.setRemk(rt[1]);
+                        sms.setRemk(rt.length>1?rt[1]:null);
                     }
                 } catch (Exception e) {
                     log.error("厦门仲达短信渠道返回结果异常", e);
