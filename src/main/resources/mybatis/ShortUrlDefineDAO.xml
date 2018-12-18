@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.justworld.custget.ruleengine.dao.ShortUrlDefineDAO">
+  <resultMap id="BaseResultMap" type="com.justworld.custget.ruleengine.service.bo.ShortUrlDefine">
+    <id column="ID" jdbcType="BIGINT" property="id" />
+    <result column="LONG_URL" jdbcType="VARCHAR" property="longUrl" />
+    <result column="CREATE_TIME" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="SERVICE_TYPE" jdbcType="CHAR" property="serviceType" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    ID, LONG_URL, CREATE_TIME, SERVICE_TYPE
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from short_url_define
+    where ID = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from short_url_define
+    where ID = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" keyColumn="ID" keyProperty="id" parameterType="com.justworld.custget.ruleengine.service.bo.ShortUrlDefine" useGeneratedKeys="true">
+    insert into short_url_define (LONG_URL, CREATE_TIME, SERVICE_TYPE
+      )
+    values (#{longUrl,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, #{serviceType,jdbcType=CHAR}
+      )
+  </insert>
+  <insert id="insertSelective" keyColumn="ID" keyProperty="id" parameterType="com.justworld.custget.ruleengine.service.bo.ShortUrlDefine" useGeneratedKeys="true">
+    insert into short_url_define
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="longUrl != null">
+        LONG_URL,
+      </if>
+      <if test="createTime != null">
+        CREATE_TIME,
+      </if>
+      <if test="serviceType != null">
+        SERVICE_TYPE,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="longUrl != null">
+        #{longUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="serviceType != null">
+        #{serviceType,jdbcType=CHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.justworld.custget.ruleengine.service.bo.ShortUrlDefine">
+    update short_url_define
+    <set>
+      <if test="longUrl != null">
+        LONG_URL = #{longUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        CREATE_TIME = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="serviceType != null">
+        SERVICE_TYPE = #{serviceType,jdbcType=CHAR},
+      </if>
+    </set>
+    where ID = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.justworld.custget.ruleengine.service.bo.ShortUrlDefine">
+    update short_url_define
+    set LONG_URL = #{longUrl,jdbcType=VARCHAR},
+      CREATE_TIME = #{createTime,jdbcType=TIMESTAMP},
+      SERVICE_TYPE = #{serviceType,jdbcType=CHAR}
+    where ID = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

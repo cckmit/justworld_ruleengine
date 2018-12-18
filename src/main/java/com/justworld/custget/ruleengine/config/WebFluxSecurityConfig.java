@@ -72,9 +72,10 @@ public class WebFluxSecurityConfig {
                 .csrf().disable()
                 .authorizeExchange()
                 .pathMatchers("/messageReceive/**"
+                        , "/*"
                         , "/click/**"
                         , "/auth/**"
-                        , "/sysconfig/**"
+                        , "/smsReceive/**"
                         , "/aismsjob/weibocode")
                 .permitAll()
                 .and()

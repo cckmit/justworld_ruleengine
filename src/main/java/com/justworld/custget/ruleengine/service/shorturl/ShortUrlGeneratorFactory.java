@@ -7,8 +7,10 @@ import org.springframework.context.annotation.Configuration;
 public class ShortUrlGeneratorFactory {
     @Autowired
     private SinaShortUrlGenerator sinaShortUrlGenerator;
+    @Autowired
+    private JustWorldShortUrlGenerator justWorldShortUrlGenerator;
 
     public IShortUrlGenerator getGenerator(){
-        return sinaShortUrlGenerator;
+        return justWorldShortUrlGenerator;
     }
 }

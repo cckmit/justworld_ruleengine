@@ -35,7 +35,7 @@ public class WZLDSendSmsServiceFlux extends BaseSendSmsService {
 
     private String dispatcherId = "5";
 
-    @Scheduled(cron = "10 0/1 * * * *")
+    @Scheduled(cron = "25 0/10 * * * *")
     public void sendDbSms() {
         super.sendDbSms();
     }

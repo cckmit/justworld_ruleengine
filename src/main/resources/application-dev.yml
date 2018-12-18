@@ -20,8 +20,8 @@ spring:
     druid:
       #基本属性
       url: jdbc:mysql://192.168.40.128:3306/custget?useUnicode=true&characterEncoding=UTF-8&allowMultiQueries=true
-      username: custget
-      password:
+      username: fs
+      password: abc123
       #配置初始化大小/最小/最大
       initial-size: 1
       min-idle: 1
