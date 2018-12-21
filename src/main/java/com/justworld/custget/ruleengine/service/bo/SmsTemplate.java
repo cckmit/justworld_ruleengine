@@ -1,11 +1,14 @@
 package com.justworld.custget.ruleengine.service.bo;
 
+import lombok.Data;
+
 import java.io.Serializable;
 
 /**
  * sms_template
  * @author 
  */
+@Data
 public class SmsTemplate implements Serializable {
     /**
      * 短信模板ID
@@ -27,37 +30,7 @@ public class SmsTemplate implements Serializable {
      */
     private String content;
 
+    private String url;
+
     private static final long serialVersionUID = 1L;
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getTemplateName() {
-        return templateName;
-    }
-
-    public void setTemplateName(String templateName) {
-        this.templateName = templateName;
-    }
-
-    public String getRemk() {
-        return remk;
-    }
-
-    public void setRemk(String remk) {
-        this.remk = remk;
-    }
-
-    public String getContent() {
-        return content;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
-    }
 }

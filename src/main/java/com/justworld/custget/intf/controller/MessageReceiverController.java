@@ -10,7 +10,9 @@ import com.justworld.custget.ruleengine.exceptions.RtcdExcception;
 import com.justworld.custget.ruleengine.service.bo.AiSmsJob;
 import com.justworld.custget.ruleengine.service.bo.SmsJobUser;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.kafka.clients.producer.RecordMetadata;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
@@ -18,6 +20,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.util.DigestUtils;
 import org.springframework.util.concurrent.ListenableFuture;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Mono;
 
 import java.util.Map;
 
@@ -38,9 +41,10 @@ public class MessageReceiverController {
 
     @ResponseBody
     @PostMapping(value = "/addAiSms")
-    public BaseResult addAiSms(@RequestBody BaseRequest<AiSmsJob> request) {
-
-        return BaseResult.build(req -> {
+    public Mono<BaseResult> addAiSms(@RequestBody BaseRequest<AiSmsJob> request) {
+        log.trace("receive sms!");
+        log.trace(request.toString());
+        return Mono.just(request).flatMap(r -> Mono.just(BaseResult.build(req -> {
             RequestHead reqHead = req.getHead();
             //校验用户密码
             SmsJobUser user = smsJobUserDAO.selectByUsername("1", reqHead.getUsername());
@@ -51,6 +55,6 @@ public class MessageReceiverController {
             ListenableFuture<SendResult<String, String>> future = kafkaTemplate.send("ai_message", req.getBody());
             future.addCallback(o -> log.trace("message sent to " + o.getRecordMetadata().topic() + ", partition " + o.getRecordMetadata().partition() + ", offset " + o.getRecordMetadata().offset()), throwable -> log.trace("消息发送失败：" + throwable.getMessage()));
             return null;
-        }, request);
+        }, r)));
     }
 }

@@ -29,6 +29,16 @@ import java.io.Serializable;
      */
     private String status;
 
+    private String extno;
+
+    private String sendUrl;
+
+    private String account;
+
+    private String password;
+
+    private String extraParam;
+
     private static final long serialVersionUID = 1L;
 
 }

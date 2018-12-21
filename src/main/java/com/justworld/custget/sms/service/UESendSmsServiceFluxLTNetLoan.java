@@ -15,21 +15,6 @@ import java.util.List;
 @Service
 public class UESendSmsServiceFluxLTNetLoan extends UESendSmsServiceFluxBase {
 
-    @Override
-    protected String getSendUrl() {
-        return baseConfigDAO.selectByPrimaryKey("UE_SMS_LT_NET_LOAN_CONFIG", "SEND_URL").getCfgValue();
-    }
-
-    @Override
-    protected String getAccount() {
-        return baseConfigDAO.selectByPrimaryKey("UE_SMS_LT_NET_LOAN_CONFIG", "ACCOUNT").getCfgValue();
-    }
-
-    @Override
-    protected String getPassword() {
-        return baseConfigDAO.selectByPrimaryKey("UE_SMS_LT_NET_LOAN_CONFIG", "PASSWORD").getCfgValue();
-    }
-
     @Scheduled(cron = "15 0/10 * * * *")
     public void sendDbSms() {
         super.sendDbSms();

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.justworld.custget.ruleengine.dao.SmsClickLogDAO">
+  <resultMap id="BaseResultMap" type="com.justworld.custget.ruleengine.service.bo.SmsClickLog">
+    <id column="ID" jdbcType="BIGINT" property="id" />
+    <result column="CLICK_TIME" jdbcType="TIMESTAMP" property="clickTime" />
+    <result column="SMS_ID" jdbcType="BIGINT" property="smsId" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    ID, CLICK_TIME, SMS_ID
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from sms_click_log
+    where ID = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from sms_click_log
+    where ID = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" keyColumn="ID" keyProperty="id" parameterType="com.justworld.custget.ruleengine.service.bo.SmsClickLog" useGeneratedKeys="true">
+    insert into sms_click_log (CLICK_TIME, SMS_ID)
+    values (#{clickTime,jdbcType=TIMESTAMP}, #{smsId,jdbcType=BIGINT})
+  </insert>
+  <insert id="insertSelective" keyColumn="ID" keyProperty="id" parameterType="com.justworld.custget.ruleengine.service.bo.SmsClickLog" useGeneratedKeys="true">
+    insert into sms_click_log
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="clickTime != null">
+        CLICK_TIME,
+      </if>
+      <if test="smsId != null">
+        SMS_ID,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="clickTime != null">
+        #{clickTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="smsId != null">
+        #{smsId,jdbcType=BIGINT},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.justworld.custget.ruleengine.service.bo.SmsClickLog">
+    update sms_click_log
+    <set>
+      <if test="clickTime != null">
+        CLICK_TIME = #{clickTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="smsId != null">
+        SMS_ID = #{smsId,jdbcType=BIGINT},
+      </if>
+    </set>
+    where ID = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.justworld.custget.ruleengine.service.bo.SmsClickLog">
+    update sms_click_log
+    set CLICK_TIME = #{clickTime,jdbcType=TIMESTAMP},
+      SMS_ID = #{smsId,jdbcType=BIGINT}
+    where ID = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

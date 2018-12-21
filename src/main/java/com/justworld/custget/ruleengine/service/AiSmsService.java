@@ -3,9 +3,7 @@ package com.justworld.custget.ruleengine.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.justworld.custget.ruleengine.dao.*;
 import com.justworld.custget.ruleengine.service.bo.*;
-import com.justworld.custget.ruleengine.service.phoneidentify.IPhoneIdentifier;
 import com.justworld.custget.ruleengine.service.phoneidentify.PhoneIdentifierFactory;
-import com.justworld.custget.ruleengine.service.phoneidentify.PhoneOperatorIdentify;
 import com.justworld.custget.ruleengine.service.shorturl.IShortUrlGenerator;
 import com.justworld.custget.ruleengine.service.shorturl.ShortUrlGeneratorFactory;
 import com.justworld.custget.ruleengine.service.smsdispatcher.AiSmsDispatcherSelector;
@@ -18,7 +16,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.concurrent.ListenableFuture;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -31,8 +28,6 @@ public class AiSmsService {
     private PhoneIdentifyDAO phoneIdentifyDAO;
     @Autowired
     private PhoneSegmentDAO phoneSegmentDAO;
-    @Autowired
-    private ObjectMapper objectMapper;
     @Autowired
     private KafkaTemplate kafkaTemplate;
     @Autowired
@@ -63,7 +58,6 @@ public class AiSmsService {
             aiSmsJob.setShortUrlStatus("1");
             aiSmsJob.setStatus("1");
             aiSmsJob.setCreateTime(new Date());
-            aiSmsJob.setClickCount(0);
             aiSmsJobList.add(aiSmsJob);
         }
 
@@ -104,7 +98,7 @@ public class AiSmsService {
                 PhoneSegment phoneSegment = phoneSegmentDAO.selectByPrimaryKey(aiSmsJob.getPhone().substring(0, 7));
                 if (phoneSegment == null || !"1".equals(phoneSegment.getStatus())) {
                     phoneIdentifierFactory.getIdentifier().identify(aiSmsJob.getPhone(), newPhoneSegment -> {
-                        identifyPhone(aiSmsJob, phoneSegment);
+                        identifyPhone(aiSmsJob, newPhoneSegment);
                         checkIfSend(aiSmsJob.getId());
                     });
                 } else {
@@ -207,25 +201,20 @@ public class AiSmsService {
             return;
         }
 
-        //决定使用的渠道
-        SmsDispatcher dispatcher = dispatcherSelector.select(aiSmsJob);
-        if(dispatcher == null){
-            return;
-        }
-
         SmsTemplate smsTemplate = smsTemplateDAO.selectByPrimaryKey(aiSmsJob.getSmsTemplateId());
 
         //组装短信内容
         String smsContent = StringUtils.replace(smsTemplate.getContent(), "<<" + aiSmsJob.getSmsTemplateUrl() + ">>", aiSmsJob.getSmsShortUrl());
-        SendSms sms = new SendSms(aiSmsJob.getPhone(), smsContent, dispatcher.getDispatcherKey());
+        SendSms sms = new SendSms(aiSmsJob.getPhone(), smsContent, "0","1");
+        sms.setSmsTemplateId(smsTemplate.getId());
         sendSmsDAO.insert(sms);
 
-        aiSmsJob.setSendSmsId(sms.getId() + "");
+        aiSmsJob.setSendSmsId(sms.getId());
         aiSmsJob.setStatus("2");
         aiSmsJobDAO.updateByPrimaryKey(aiSmsJob);
 
         //发送发短信通知
-        ListenableFuture future = kafkaTemplate.send("send_sms_notify_" + dispatcher.getDispatcherKey(), sms);
-        future.addCallback(o -> log.debug("挂机短信任务{}短信发送通知消息发送成功："), throwable -> log.error("短信发送通知消息发送失败", throwable));
+        ListenableFuture future = kafkaTemplate.send("send_sms_notify_decide_dispatcher", sms);
+        future.addCallback(o -> log.debug("挂机短信任务{}短信渠道识别发送通知消息发送成功：",sms.getId()), throwable -> log.error("短信发送通知消息发送失败", throwable));
     }
 }

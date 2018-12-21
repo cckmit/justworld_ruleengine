@@ -14,7 +14,7 @@ public class SendSms implements Serializable {
     /**
      * 短信主键，标识唯一
      */
-    private Integer id;
+    private Long id;
 
     /**
      * 被叫号码
@@ -83,6 +83,11 @@ public class SendSms implements Serializable {
     private String sendResult;
 
     private Integer cost;
+
+    private Date clickTime;
+    private Integer clickCount;
+    private String smsTemplateId;
+    private String url;
 
     private static final long serialVersionUID = 1L;
     public SendSms() {

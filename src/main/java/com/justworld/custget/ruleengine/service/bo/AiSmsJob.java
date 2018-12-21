@@ -54,17 +54,6 @@ import java.util.Date;
     private Date createTime;
 
     /**
-     * 短信链接点击次数
-     */
-    private int clickCount;
-
-    /**
-     * 短信链接最后点击时间
-     */
-//    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
-    private Timestamp clickTime;
-
-    /**
      * 要发送的短信模板ID
      */
     private String smsTemplateId;
@@ -73,9 +62,17 @@ import java.util.Date;
 
     private String smsShortUrl;
 
-    private String sendSmsId;
+    private Long sendSmsId;
 
     private String smsTemplateContent;
+
+    private Integer clickCount;
+
+    private Date clickTime;
+
+    private String dispatcherId;
+
+    private String smsContent;
 
     private static final long serialVersionUID = 1L;
 

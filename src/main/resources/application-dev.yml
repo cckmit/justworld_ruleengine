@@ -4,7 +4,7 @@ logging:
   level:
     com.justworld: trace
     root: warn
-    org.apache.ibatis.logging: info
+    org.apache.ibatis.logging: trace
     com.justworld.custget.ruleengine.dao: info
 #    org.springframework.security: trace
 #    org.springframework.kafka: info

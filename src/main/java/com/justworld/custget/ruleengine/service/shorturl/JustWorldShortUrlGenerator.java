@@ -48,7 +48,7 @@ public class JustWorldShortUrlGenerator implements IShortUrlGenerator {
             shortUrlDefine.setLongUrl(longUrl);
             shortUrlDefine.setServiceType(urlMap.get(longUrl));
             shortUrlDefineDAO.insert(shortUrlDefine);
-            urlMap.put(longUrl, shortUrlPrefix+ShortUrlConveter.encode(shortUrlDefine.getId(), 6));
+            urlMap.put(longUrl, shortUrlPrefix+ShortUrlConveter.encode(shortUrlDefine.getId(), 1));
         }
         consumer.accept(urlMap);
     }

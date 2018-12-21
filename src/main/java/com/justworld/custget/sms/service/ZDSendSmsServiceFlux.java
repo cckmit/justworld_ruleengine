@@ -1,12 +1,14 @@
 package com.justworld.custget.sms.service;
 
+import com.justworld.custget.ruleengine.service.bo.Notify;
 import com.justworld.custget.ruleengine.service.bo.SendSms;
+import com.justworld.custget.ruleengine.service.bo.SmsDispatcher;
 import io.netty.channel.ChannelOption;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
-import org.apache.commons.lang3.time.DateUtils;
+import org.apache.commons.lang3.tuple.Triple;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -20,6 +22,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 
 /**
  * 万众联动
@@ -39,130 +42,77 @@ public class ZDSendSmsServiceFlux extends BaseSendSmsService {
     }
 
     @Override
-    protected void sendSms(List<SendSms> sendSmsList) {
-
-        Flux<SendSms> sendSmsFlux = Flux.fromIterable(sendSmsList);
-        log.debug("本次短信发送条数:{}", sendSmsList.size());
-
-        //查询短信发送的用户名密码
-        String sendUrl = baseConfigDAO.selectByPrimaryKey("ZHONGDA_SMS_CONFIG", "SEND_URL").getCfgValue();
-        String account = baseConfigDAO.selectByPrimaryKey("ZHONGDA_SMS_CONFIG", "ACCOUNT").getCfgValue();
-        String password = baseConfigDAO.selectByPrimaryKey("ZHONGDA_SMS_CONFIG", "PASSWORD").getCfgValue();
-        String timestamp = DateFormatUtils.format(System.currentTimeMillis(),"yyyyMMddHHmmss");
-
-        ReactorClientHttpConnector connector = new ReactorClientHttpConnector(options -> options.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 2000).compression(true).afterNettyContextInit(ctx -> {
-            ctx.addHandlerLast(new ReadTimeoutHandler(5000, TimeUnit.MILLISECONDS));
-        }));
-
-        WebClient webClient = WebClient.builder()
-                .clientConnector(connector)
-                .baseUrl(sendUrl)
-                .build();
-
-        long start = System.currentTimeMillis();
-        Flux<SendSms> sendSmsOverFlux = sendSmsFlux.flatMap(sendSms -> {
-            log.debug("本次发送短信ID[{}]", sendSms.getId());
+    protected Function<Triple<SmsDispatcher, WebClient, SendSms>, Mono<String>> getRequestBuilder() {
+        return (param)->{
+            SmsDispatcher dispatcher = param.getLeft();
+            SendSms sendSms = param.getRight();
+            String timestamp = DateFormatUtils.format(System.currentTimeMillis(), "yyyyMMddHHmmss");
             String sign = null;
             try {
-                sign =  DigestUtils.md5DigestAsHex((password+timestamp).getBytes("UTF-8"));
+                sign = DigestUtils.md5DigestAsHex((dispatcher.getPassword() + timestamp).getBytes("UTF-8"));
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             }
-
-            Mono<String> r = webClient.get()
+            return param.getMiddle().get()
                     .uri("?uid={account}&pw={password}&mb={phone}&ms={content}&tm={timestamp}&ex={ex}",
-                            account,sign,sendSms.getPhone(),sendSms.getContent(),timestamp,"")
+                            dispatcher.getAccount(), sign, sendSms.getPhone(), sendSms.getContent(), timestamp, "")
                     .retrieve()
                     .bodyToMono(String.class);
+        };
+    }
 
-            r.onErrorResume(e -> {
-                log.error("厦门仲达短信渠道发送异常", e);
-                //自行组装报文重试
-                return Mono.just("Retry,"+e.getMessage());
-            });
+    @Override
+    protected Function<String, Triple<Integer, String, String>> handleResult() {
+        return sendResult -> {
+            String[] rt = sendResult.split(",");
+            int status = 1;
+            String msgId = null;
+            String remk = "";
+            if ("0".equals(rt[0])) {
+                status = 1;
+                msgId = rt[1];
+            } else if ("Retry".equals(rt[0])) {
+                status = 0;
+                remk = StringUtils.substring(rt[1] + "", 0, 255);
+            } else {
+                status = 2;
+                remk = rt.length > 1 ? rt[1] : null;
+            }
 
-            return Mono.zip(r, Mono.just(sendSms)).flatMap(p -> {
-                SendSms sms = p.getT2();
-                String sendResult = p.getT1();
-                log.debug("短信ID[{}]发送耗时：{}",sms.getId(),System.currentTimeMillis()-start);
-                try {
-                    log.trace("response = {}", sendResult);
-                    String[] rt = sendResult.split(",");
-                    sms.setSendTime(new Date());
-                    if ("0".equals(rt[0])) {
-                        //成功
-                        log.debug("仲达短信发送成功");
-                        sms.setStatus(1);
-                        sms.setMsgId(rt[1]);
-                        sms.setRetryTimes(null);
-                        sms.setRemk(null);
+            return Triple.of(status,msgId,remk);
 
-                    } else if ("Retry".equals(rt[0])) {
-                        log.debug("请求异常，重试");
-                        sms.setStatus(0);
-                        sms.setRetryTimes(sms.getRetryTimes() + 1);
-                        sms.setRemk(StringUtils.substring(rt[1] + "", 0, 255));
-                    } else {
-                        //发送失败
-                        log.info("发送失败:{}", sendResult);
-                        sms.setStatus(2);
-                        sms.setMsgId(null);
-                        sms.setRetryTimes(null);
-                        sms.setRemk(rt.length>1?rt[1]:null);
-                    }
-                } catch (Exception e) {
-                    log.error("厦门仲达短信渠道返回结果异常", e);
-                    sms.setStatus(2);
-                    sms.setMsgId(null);
-                    sms.setRetryTimes(null);
-                    sms.setRemk(StringUtils.substring(sendResult, 0, 255));
-                } finally {
-                    sendSmsDAO.updateSendSmsSendResult(sms);
-                    if ((sms.getRetryTimes() != null && sms.getMaxRetryTimes() <= sms.getRetryTimes()) || sms.getStatus().equals("2")) {
-                        //短信任务异常
-                        aiSmsJobDAO.updateSingleJobBySendSmsStatus("9", sendSms.getId());
-                    } else {
-                        //任务成功
-                        aiSmsJobDAO.updateSingleJobBySendSmsStatus("3", sms.getId());
-                    }
-                }
-                return Mono.just(sms);
-            });
-        });
-
-        List<SendSms> totalSend = sendSmsOverFlux.collectList().block();
-        log.debug("短信数量{},总处理耗时{}", totalSend.size(), System.currentTimeMillis()-start);
+        };
     }
 
     public Mono<String> receiveSmsReport(String data) {
-        log.debug("receive report data={}",  data);
-            String[] messages = data.split("[|]");
-            Mono<String> reportMono = Flux.fromArray(messages).flatMap(message -> {
-                try {
+        log.debug("receive report data={}", data);
+        String[] messages = data.split("[|]");
+        Mono<String> reportMono = Flux.fromArray(messages).flatMap(message -> {
+            try {
 
-                    String[] result = message.split(",");
-                    SendSms sendSms = new SendSms();
-                    sendSms.setMsgId(result[0]);
-                    sendSms.setPhone(result[1]);
-                    switch (result[2]) {
-                        case "DELIVRD":
-                            sendSms.setSendResult("1");
-                            break;
-                        default:
-                            sendSms.setSendResult("2");
-                            break;
-                    }
-                    sendSms.setRemk(result[2]);
-                    sendSms.setDoneTime(DateUtils.parseDate(result[3], "yyyy-M-dd HH:mm:ss"));
-                    sendSmsDAO.updateSendResult(sendSms);
-                    return Mono.just("0");
-                } catch (Exception e) {
-                    log.error("处理状态报告出错", e);
-                    return Mono.error(e);
+                String[] result = message.split(",");
+                SendSms sendSms = new SendSms();
+                sendSms.setMsgId(result[0]);
+                sendSms.setPhone(result[1]);
+                switch (result[2]) {
+                    case "DELIVRD":
+                        sendSms.setSendResult("1");
+                        break;
+                    default:
+                        sendSms.setSendResult("2");
+                        break;
                 }
-            }).onErrorReturn("9").last();
+                sendSms.setRemk(result[2]);
+                sendSms.setDoneTime(new Date());
+                sendSmsDAO.updateSendResult(sendSms);
+                return Mono.just("0");
+            } catch (Exception e) {
+                log.error("处理状态报告出错", e);
+                return Mono.error(e);
+            }
+        }).onErrorReturn("9").last();
 
-            return reportMono;
+        return reportMono;
     }
 
     @Override

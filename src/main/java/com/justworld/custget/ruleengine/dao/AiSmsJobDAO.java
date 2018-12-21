@@ -15,12 +15,12 @@ public interface AiSmsJobDAO {
 
     @Insert("<script>" +
             "INSERT IGNORE INTO ai_sms_job (\n" +
-            "  AI_SEQ,PHONE, AI_USERNAME, TAG, PHONE_STATUS, SHORT_URL_STATUS, STATUS, RULE_ID, CREATE_TIME, CLICK_COUNT, CLICK_TIME, SMS_TEMPLATE_ID, SMS_TEMPLATE_URL, SMS_SHORT_URL\n" +
+            "  AI_SEQ,PHONE, AI_USERNAME, TAG, PHONE_STATUS, SHORT_URL_STATUS, STATUS, RULE_ID, CREATE_TIME, SMS_TEMPLATE_ID, SMS_TEMPLATE_URL, SMS_SHORT_URL\n" +
             ") \n" +
             "VALUES\n" +
             "<foreach item='aismsjob' index='index' collection='list' separator=',\n'>" +
             "  (\n" +
-            "    #{aismsjob.aiSeq}, #{aismsjob.phone}, #{aismsjob.aiUsername}, #{aismsjob.tag},#{aismsjob.phoneStatus},#{aismsjob.shortUrlStatus},#{aismsjob.status}, #{aismsjob.ruleId}, #{aismsjob.createTime},#{aismsjob.clickCount}, #{aismsjob.clickTime}, #{aismsjob.smsTemplateId}, #{aismsjob.smsTemplateUrl}, #{aismsjob.smsShortUrl}" +
+            "    #{aismsjob.aiSeq}, #{aismsjob.phone}, #{aismsjob.aiUsername}, #{aismsjob.tag},#{aismsjob.phoneStatus},#{aismsjob.shortUrlStatus},#{aismsjob.status}, #{aismsjob.ruleId}, #{aismsjob.createTime}, #{aismsjob.smsTemplateId}, #{aismsjob.smsTemplateUrl}, #{aismsjob.smsShortUrl}" +
             "  )\n" +
             "</foreach>" +
             "</script>")
@@ -29,6 +29,9 @@ public interface AiSmsJobDAO {
 
     @Select("SELECT A.*,P.PROVINCE,P.CITY,P.TEL_OPERATOR FROM AI_SMS_JOB A LEFT JOIN PHONE_IDENTIFY P ON A.PHONE=P.PHONE  WHERE A.ID=#{id}")
     AiSmsJob selectByPrimaryKey(@Param("id") Integer id);
+
+    @Select("SELECT A.*,P.PROVINCE,P.CITY,P.TEL_OPERATOR FROM AI_SMS_JOB A LEFT JOIN PHONE_IDENTIFY P ON A.PHONE=P.PHONE  WHERE A.SEND_SMS_ID=#{sendSmsId}")
+    AiSmsJob selectBySendSmsId(@Param("sendSmsId") Long sendSmsId);
 
     @Update("UPDATE AI_SMS_JOB SET PHONE_STATUS=#{phoneStatus} WHERE ID=#{id}")
     int updatePhoneStatus(AiSmsJob record);
@@ -41,13 +44,13 @@ public interface AiSmsJobDAO {
 
     @Update("UPDATE `ai_sms_job` \n" +
             "SET\n" +
-            "  `TAG` = #{tag}, `PHONE_STATUS` = #{phoneStatus}, `SHORT_URL_STATUS` = #{shortUrlStatus}, `STATUS` = #{status}, `RULE_ID` = #{ruleId}, `CLICK_COUNT` = #{clickCount}, `CLICK_TIME` = #{clickTime}, `SMS_TEMPLATE_URL` = #{smsTemplateUrl}, `SMS_SHORT_URL` = #{smsShortUrl}, `SEND_SMS_ID` = #{sendSmsId} \n" +
+            "  `TAG` = #{tag}, `PHONE_STATUS` = #{phoneStatus}, `SHORT_URL_STATUS` = #{shortUrlStatus}, `STATUS` = #{status}, `RULE_ID` = #{ruleId}, `SMS_TEMPLATE_URL` = #{smsTemplateUrl}, `SMS_SHORT_URL` = #{smsShortUrl}, `SEND_SMS_ID` = #{sendSmsId} \n" +
             "WHERE `ID` = #{id}")
     int updateByPrimaryKey(AiSmsJob record);
 
 
     @Select("<script>" +
-            "SELECT A.*,P.PROVINCE,P.CITY,P.TEL_OPERATOR FROM AI_SMS_JOB A LEFT JOIN PHONE_IDENTIFY P ON A.PHONE=P.PHONE " +
+            "SELECT A.*,S.CONTENT,S.DISPATCHER_ID,P.PROVINCE,P.CITY,P.TEL_OPERATOR FROM AI_SMS_JOB A JOIN SEND_SMS S ON A.SEND_SMS_ID=S.ID LEFT JOIN PHONE_IDENTIFY P ON A.PHONE=P.PHONE " +
             "<where>" +
             "<if test='id != null and id !=\"\"'> " +
             "AND A.ID = #{id}" +
@@ -75,8 +78,8 @@ public interface AiSmsJobDAO {
             "WHERE b.DISPATCHER_ID=#{dispatcherId} AND b.LOCK_ID=#{lockId} AND b.STATUS='9'")
     int updateJobBySendSmsStatus(@Param("status")String status, @Param("dispatcherId")String dispatcherId, @Param("lockId")String lockId);
 
-    @Update("UPDATE `ai_sms_job` a JOIN send_sms b ON a.`SEND_SMS_ID`=b.`ID`\n" +
+    @Update("UPDATE `ai_sms_job` a  \n" +
             "SET a.`status`=#{status}\n" +
-            "WHERE b.ID=#{id}")
-    int updateSingleJobBySendSmsStatus(@Param("status")String status, @Param("id")Integer id);
+            "WHERE SEND_SMS_ID=#{id}")
+    int updateSingleJobBySendSmsStatus(@Param("status")String status, @Param("id")Long id);
 }

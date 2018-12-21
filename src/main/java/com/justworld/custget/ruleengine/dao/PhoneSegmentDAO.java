@@ -15,8 +15,8 @@ public interface PhoneSegmentDAO {
             ") \n" +
             "VALUES\n" +
             "  (\n" +
-            "    '#{segment},#{province},#{city},#{area},#{teloperator},#{identifytype},#{identifytime},#{status}\n" +
-            "  ) ON DUPLICATE KEY UPDATE")
+            "    #{segment},#{province},#{city},#{area},#{telOperator},#{identifyType},#{identifyTime},#{status}\n" +
+            "  ) ON DUPLICATE KEY UPDATE PROVINCE=#{province},CITY=#{city},TEL_OPERATOR=#{telOperator},IDENTIFY_TYPE=#{identifyType},IDENTIFY_TIME=#{identifyTime},STATUS=#{status}")
     int insertOrUpdate(PhoneSegment record);
 
     int insertSelective(PhoneSegment record);

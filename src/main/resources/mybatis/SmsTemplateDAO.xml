@@ -32,6 +32,9 @@
       <if test="content != null">
         CONTENT = #{content,jdbcType=VARCHAR},
       </if>
+      <if test="url != null">
+        URL = #{url,jdbcType=VARCHAR},
+      </if>
     </set>
     where ID = #{id,jdbcType=VARCHAR}
   </update>
